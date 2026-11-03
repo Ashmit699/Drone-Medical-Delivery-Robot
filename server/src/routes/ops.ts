@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { all, one, run } from '../db';
 import { drones, type AdapterKind } from '../drone/manager';
 import { HttpError, requireOperator } from '../lib/auth';
+import { emitToUser } from '../realtime';
+import { WELFARE_DISCOUNT, WELFARE_LABEL, type WelfareRow } from '../welfare';
 import { approveOrder, dispatchOrder, getOrderDetail, getOrderRow, listOrders, rejectOrder } from '../orders';
 
 export const opsRoutes = Router();
@@ -52,6 +54,7 @@ opsRoutes.get('/stats', (_req, res) => {
     ),
     byPriority: all(`SELECT priority, COUNT(*) AS n FROM orders GROUP BY priority`),
     lowStock: all('SELECT id, name, stock FROM products WHERE stock <= 5 ORDER BY stock'),
+    welfarePending: count(`SELECT COUNT(*) AS n FROM welfare WHERE status = 'pending'`),
   });
 });
 
@@ -147,4 +150,28 @@ opsRoutes.patch('/products/:id', (req, res) => {
   if (body.stock != null) run('UPDATE products SET stock = ? WHERE id = ?', body.stock, id);
   if (body.price != null) run('UPDATE products SET price = ? WHERE id = ?', body.price, id);
   res.json(one('SELECT * FROM products WHERE id = ?', id));
+});
+
+// ---------- Welfare verification ----------
+
+opsRoutes.get('/welfare', (req, res) => {
+  const status = typeof req.query.status === 'string' ? req.query.status : '';
+  const rows = all<WelfareRow & { email: string }>(
+    `SELECT w.*, u.email FROM welfare w JOIN users u ON u.id = w.user_id
+      WHERE (? = '' OR w.status = ?) ORDER BY CASE w.status WHEN 'pending' THEN 0 ELSE 1 END, w.created_at DESC`,
+    status, status,
+  );
+  res.json(rows.map((w) => ({ ...w, discountPct: WELFARE_DISCOUNT[w.category], label: WELFARE_LABEL[w.category] })));
+});
+
+opsRoutes.post('/welfare/:id/:action', (req, res) => {
+  const action = req.params.action;
+  if (action !== 'verify' && action !== 'reject') throw new HttpError(404, 'Unknown action');
+  const id = idParam(req.params.id);
+  const w = one<WelfareRow>('SELECT * FROM welfare WHERE id = ?', id);
+  if (!w) throw new HttpError(404, 'Request not found');
+  const note = typeof req.body?.note === 'string' ? req.body.note.slice(0, 200) : null;
+  run(`UPDATE welfare SET status = ?, note = ?, reviewed_at = datetime('now') WHERE id = ?`, action === 'verify' ? 'verified' : 'rejected', note, id);
+  emitToUser(w.user_id, 'welfare:update', { status: action === 'verify' ? 'verified' : 'rejected', discountPct: WELFARE_DISCOUNT[w.category], note });
+  res.json({ ok: true });
 });

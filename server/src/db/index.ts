@@ -102,6 +102,19 @@ CREATE TABLE IF NOT EXISTS missions (
   ended_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS welfare (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  category TEXT NOT NULL,
+  doc_id TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  location TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  note TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  reviewed_at TEXT
+);
+
 CREATE TABLE IF NOT EXISTS events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -141,9 +154,14 @@ export function tx<T>(fn: () => T): T {
 }
 
 // Columns added after the first release: upgrade existing databases in place.
-if (!all<{ name: string }>('PRAGMA table_info(orders)').some((c) => c.name === 'ground_alt_m')) {
-  db.exec('ALTER TABLE orders ADD COLUMN ground_alt_m REAL');
+function addColumn(table: string, column: string, type: string) {
+  if (!all<{ name: string }>(`PRAGMA table_info(${table})`).some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+  }
 }
+addColumn('orders', 'ground_alt_m', 'REAL');
+addColumn('orders', 'subsidy', 'INTEGER NOT NULL DEFAULT 0');
+addColumn('products', 'badge', 'TEXT');
 
 export function addEvent(orderId: number, type: string, message: string) {
   run('INSERT INTO events (order_id, type, message) VALUES (?, ?, ?)', orderId, type, message);

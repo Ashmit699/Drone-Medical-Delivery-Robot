@@ -13,6 +13,8 @@ export default function Shop() {
   const sort = params.get('sort') ?? '';
   const [q, setQ] = useState(params.get('q') ?? '');
   const [debouncedQ, setDebouncedQ] = useState(q);
+  const urlQ = params.get('q') ?? '';
+  useEffect(() => setQ(urlQ), [urlQ]);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQ(q), 250);
@@ -35,11 +37,11 @@ export default function Shop() {
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Pharmacy</h1>
-          <p className="mt-1 text-slate-500">Every item is light enough to fly. Up to 300 g per delivery.</p>
+          <p className="mt-1 text-slate-400">Every item is light enough to fly. Up to 300 g per delivery.</p>
         </div>
         <div className="flex gap-2">
           <label className="relative flex-1 md:w-72">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input className="input pl-9" placeholder="Search fever, asthma, wound…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search products" />
           </label>
           <select className="input w-auto" value={sort} onChange={(e) => update('sort', e.target.value)} aria-label="Sort">
@@ -58,7 +60,7 @@ export default function Shop() {
             onClick={() => update('category', c.name)}
             className={cx(
               'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition',
-              category === c.name ? 'border-brand-600 bg-brand-600 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300',
+              category === c.name ? 'border-brand-600 bg-brand-600 text-white' : 'border-line bg-panel text-slate-300 hover:border-white/20',
             )}
           >
             {c.name || 'All'} <span className="opacity-60">{c.count}</span>

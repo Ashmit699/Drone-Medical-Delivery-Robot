@@ -41,11 +41,31 @@ const PRODUCTS: P[] = [
   // Cold Chain
   ['insulin-pen-cold', 'Insulin Pen (cold-chain pouch)', 'Cold Chain', 'Shipped in an insulated gel pouch to stay at 2–8 °C during flight.', 950, 120, 12, true, 'snowflake', 'diabetes insulin'],
   ['anti-venom-vial', 'Anti-Snake Venom Vial (cold-chain)', 'Cold Chain', 'For hospital/PHC use only. Insulated pouch. Prescription required.', 680, 140, 6, true, 'snowflake', 'snake bite'],
+  // Relief & Survival (light enough for one flight)
+  ['thermal-emergency-blanket', 'Thermal Emergency Blanket (2)', 'Relief & Survival', 'Mylar blankets that keep in ~90% of body heat for shock, cold or flood rescue.', 120, 110, 40, false, 'shield-plus', 'cold shock flood shelter'],
+  ['water-purification-tablets', 'Water Purification Tablets (30)', 'Relief & Survival', 'Each tablet makes 1 L of drinking water safe in 30 minutes. For floods and outbreaks.', 150, 25, 60, false, 'droplet', 'water flood cholera'],
+  ['survival-whistle-compass', 'Rescue Whistle + Compass Kit', 'Relief & Survival', '120 dB whistle, button compass and reflective signal mirror for rescue teams.', 199, 70, 35, false, 'compass', 'rescue signal flood'],
+  ['led-headlamp', 'Rechargeable LED Headlamp', 'Relief & Survival', 'Hands-free light with a red night mode for night deliveries and power cuts.', 349, 95, 25, false, 'flashlight', 'light power cut night'],
+  ['vegetable-seed-packets', 'Kitchen-Garden Seed Packets (5)', 'Relief & Survival', 'Tomato, spinach, okra, gourd and chilli seed packets for nutrition security.', 99, 50, 50, false, 'sprout', 'seeds farming nutrition'],
   // Mother & Baby
   ['baby-fever-drops', 'Paediatric Paracetamol Drops', 'Mother & Baby', 'Fever drops for infants, with a dosing dropper.', 65, 40, 40, false, 'baby', 'child fever'],
   ['iron-folic-tablets', 'Iron + Folic Acid (30)', 'Mother & Baby', 'Supplement for pregnant women, as advised by an ASHA/doctor.', 55, 25, 70, false, 'heart-pulse', 'pregnancy anaemia'],
   ['newborn-care-kit', 'Newborn Care Kit', 'Mother & Baby', 'Sterile cord clamp, blade, gauze, gloves and a baby wrap.', 340, 210, 15, false, 'baby', 'delivery newborn'],
 ];
+
+const BADGES: Record<string, string> = {
+  'emergency-trauma-kit': 'Life-saving',
+  'epinephrine-auto-injector': 'Critical',
+  'snakebite-first-response': 'Rural essential',
+  'glucose-gel': 'Fast relief',
+  'first-aid-kit-basic': 'Bestseller',
+  'ors-sachets-5': 'High demand',
+  'pulse-oximeter': 'Top rated',
+  'insulin-pen-cold': 'Cold-chain',
+  'water-purification-tablets': 'Flood relief',
+  'thermal-emergency-blanket': 'Disaster kit',
+  'newborn-care-kit': 'Critical care',
+};
 
 const DRONES = [
   // MDR-01 is our real prototype. Switch its adapter to 'bridge' in Ops → Fleet once drone-bridge runs.
@@ -64,7 +84,7 @@ const PLACES: [label: string, line: string, north: number, east: number][] = [
 
 export function seed() {
   tx(() => {
-    for (const t of ['events', 'missions', 'order_items', 'orders', 'addresses', 'drones', 'products', 'users']) {
+    for (const t of ['events', 'missions', 'order_items', 'orders', 'welfare', 'addresses', 'drones', 'products', 'users']) {
       db.exec(`DELETE FROM ${t}`);
     }
     db.exec(`DELETE FROM sqlite_sequence`);
@@ -75,7 +95,10 @@ export function seed() {
     const customerId = userIds[0];
 
     for (const [slug, name, category, description, price, weight, stock, rx, icon, tags] of PRODUCTS) {
-      run('INSERT INTO products (slug, name, category, description, price, weight_g, stock, rx_required, icon, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', slug, name, category, description, price, weight, stock, rx, icon, tags);
+      run(
+        'INSERT INTO products (slug, name, category, description, price, weight_g, stock, rx_required, icon, tags, badge) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        slug, name, category, description, price, weight, stock, rx, icon, tags, BADGES[slug] ?? null,
+      );
     }
 
     for (const d of DRONES) {

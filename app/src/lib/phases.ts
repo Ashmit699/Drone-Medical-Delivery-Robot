@@ -18,19 +18,19 @@ export const PHASE_LABELS: Record<MissionPhase, string> = {
 };
 
 export const STATUS_META: Record<OrderStatus, { label: string; tone: string }> = {
-  placed: { label: 'Awaiting approval', tone: 'bg-slate-100 text-slate-700 ring-slate-200' },
-  approved: { label: 'Approved · packing', tone: 'bg-sky-50 text-sky-700 ring-sky-200' },
-  in_flight: { label: 'In flight', tone: 'bg-indigo-50 text-indigo-700 ring-indigo-200' },
-  delivered: { label: 'Delivered', tone: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
-  rejected: { label: 'Rejected', tone: 'bg-red-50 text-red-700 ring-red-200' },
-  cancelled: { label: 'Cancelled', tone: 'bg-slate-100 text-slate-500 ring-slate-200' },
-  failed: { label: 'Failed · returned', tone: 'bg-red-50 text-red-700 ring-red-200' },
+  placed: { label: 'Awaiting approval', tone: 'bg-white/[0.06] text-slate-200 ring-white/10' },
+  approved: { label: 'Approved · packing', tone: 'bg-sky-500/10 text-sky-300 ring-sky-500/30' },
+  in_flight: { label: 'In flight', tone: 'bg-indigo-500/10 text-indigo-300 ring-indigo-500/30' },
+  delivered: { label: 'Delivered', tone: 'bg-emerald-500/10 text-emerald-300 ring-emerald-500/30' },
+  rejected: { label: 'Rejected', tone: 'bg-red-500/10 text-red-300 ring-red-500/30' },
+  cancelled: { label: 'Cancelled', tone: 'bg-white/[0.06] text-slate-400 ring-white/10' },
+  failed: { label: 'Failed · returned', tone: 'bg-red-500/10 text-red-300 ring-red-500/30' },
 };
 
 export const PRIORITY_META: Record<Priority, { label: string; tone: string; blurb: string }> = {
-  standard: { label: 'Standard', tone: 'bg-slate-100 text-slate-700', blurb: 'Dispatched in order' },
-  express: { label: 'Express', tone: 'bg-amber-100 text-amber-800', blurb: 'Skips the standard queue' },
-  emergency: { label: 'Emergency', tone: 'bg-red-100 text-red-700', blurb: 'Next drone out, free of charge' },
+  standard: { label: 'Standard', tone: 'bg-white/[0.06] text-slate-200', blurb: 'Dispatched in order' },
+  express: { label: 'Express', tone: 'bg-amber-500/15 text-amber-200', blurb: 'Skips the standard queue' },
+  emergency: { label: 'Emergency', tone: 'bg-red-500/15 text-red-300', blurb: 'Next drone out, free of charge' },
 };
 
 /** Customer-facing journey. Each step completes when the order reaches one of its phases/statuses. */

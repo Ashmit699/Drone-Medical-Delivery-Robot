@@ -67,7 +67,7 @@ export default function Monitor() {
               onClick={() => setSelected(d.id)}
               className={cx(
                 'flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold',
-                d.id === drone.id ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-600',
+                d.id === drone.id ? 'border-indigo-500 bg-indigo-500/10 text-indigo-300' : 'border-line bg-panel text-slate-300',
               )}
             >
               <span className={cx('h-2 w-2 rounded-full', d.telemetry?.armed ? 'animate-pulse bg-emerald-500' : d.telemetry?.connected ? 'bg-slate-400' : 'bg-red-500')} />
@@ -94,11 +94,11 @@ export default function Monitor() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="text-lg font-bold">
-                  {drone.name} <span className="text-sm font-normal text-slate-400">{drone.id}</span>
+                  {drone.name} <span className="text-sm font-normal text-slate-500">{drone.id}</span>
                 </div>
-                <div className="text-xs text-slate-500">{drone.model}</div>
+                <div className="text-xs text-slate-400">{drone.model}</div>
               </div>
-              <span className={cx('rounded-full px-2.5 py-1 text-xs font-bold', t?.armed ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500')}>
+              <span className={cx('rounded-full px-2.5 py-1 text-xs font-bold', t?.armed ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/[0.06] text-slate-400')}>
                 {t?.armed ? 'ARMED' : 'DISARMED'}
               </span>
             </div>
@@ -110,7 +110,7 @@ export default function Monitor() {
             {t && (
               <>
                 <div className="mt-4 rounded-xl bg-ink px-4 py-3 text-white">
-                  <div className="text-[11px] uppercase tracking-widest text-slate-400">Phase · mode</div>
+                  <div className="text-[11px] uppercase tracking-widest text-slate-500">Phase · mode</div>
                   <div className="mt-0.5 flex items-center justify-between">
                     <span className="font-semibold">{t.paused ? 'Paused, holding position' : PHASE_LABELS[t.phase]}</span>
                     <span className="rounded bg-white/10 px-2 py-0.5 font-mono text-xs">{t.mode}</span>
@@ -128,7 +128,7 @@ export default function Monitor() {
                   <Stat
                     icon={<Battery className="h-3.5 w-3.5" />}
                     label="Battery"
-                    value={<span className={t.batteryPct < 30 ? 'text-red-600' : ''}>{Math.round(t.batteryPct)}%</span>}
+                    value={<span className={t.batteryPct < 30 ? 'text-red-400' : ''}>{Math.round(t.batteryPct)}%</span>}
                     hint={`${t.batteryV.toFixed(2)} V`}
                   />
                   <Stat icon={<Satellite className="h-3.5 w-3.5" />} label="GPS" value={`${t.gpsSats} sats`} />
@@ -141,27 +141,27 @@ export default function Monitor() {
           {t && (
             <div className="card p-5">
               <div className="flex items-center gap-2 font-semibold">
-                <Anchor className="h-4 w-4 text-brand-600" /> Payload · winch
+                <Anchor className="h-4 w-4 text-brand-400" /> Payload · winch
               </div>
               <div className="mt-3 flex gap-3">
-                <div className="relative h-28 w-10 overflow-hidden rounded-lg bg-slate-100" aria-label={`Rope ${ropePct.toFixed(0)}% out`}>
-                  <div className="absolute inset-x-0 top-0 bg-brand-200 transition-all" style={{ height: `${ropePct}%` }} />
+                <div className="relative h-28 w-10 overflow-hidden rounded-lg bg-white/[0.06]" aria-label={`Rope ${ropePct.toFixed(0)}% out`}>
+                  <div className="absolute inset-x-0 top-0 bg-brand-500/25 transition-all" style={{ height: `${ropePct}%` }} />
                 </div>
                 <dl className="grid flex-1 grid-cols-2 gap-2 text-sm">
-                  <div className="rounded-lg bg-slate-50 px-3 py-2">
-                    <dt className="text-xs text-slate-500">Rope out</dt>
+                  <div className="rounded-lg bg-white/[0.03] px-3 py-2">
+                    <dt className="text-xs text-slate-400">Rope out</dt>
                     <dd className="font-semibold tabular-nums">{t.payload.ropeM.toFixed(2)} m</dd>
                   </div>
-                  <div className="rounded-lg bg-slate-50 px-3 py-2">
-                    <dt className="text-xs text-slate-500">Winch</dt>
+                  <div className="rounded-lg bg-white/[0.03] px-3 py-2">
+                    <dt className="text-xs text-slate-400">Winch</dt>
                     <dd className="font-semibold capitalize">{t.payload.winch}</dd>
                   </div>
-                  <div className="rounded-lg bg-slate-50 px-3 py-2">
-                    <dt className="text-xs text-slate-500">Gripper</dt>
-                    <dd className={cx('font-semibold capitalize', t.payload.gripper === 'open' && 'text-amber-600')}>{t.payload.gripper}</dd>
+                  <div className="rounded-lg bg-white/[0.03] px-3 py-2">
+                    <dt className="text-xs text-slate-400">Gripper</dt>
+                    <dd className={cx('font-semibold capitalize', t.payload.gripper === 'open' && 'text-amber-400')}>{t.payload.gripper}</dd>
                   </div>
-                  <div className="rounded-lg bg-slate-50 px-3 py-2">
-                    <dt className="text-xs text-slate-500">Package</dt>
+                  <div className="rounded-lg bg-white/[0.03] px-3 py-2">
+                    <dt className="text-xs text-slate-400">Package</dt>
                     <dd className="font-semibold">{t.payload.loaded ? 'On board' : 'None'}</dd>
                   </div>
                 </dl>
@@ -195,16 +195,16 @@ export default function Monitor() {
                   <Home className="h-4 w-4" /> Hold: return home
                 </HoldButton>
               </div>
-              <p className="flex items-start gap-1.5 text-xs text-slate-500">
+              <p className="flex items-start gap-1.5 text-xs text-slate-400">
                 <Zap className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 Return home reels the rope in first if a package is being lowered. On the real drone, the RC safety pilot can always take over.
               </p>
             </div>
           )}
           {!t?.armed && (
-            <div className="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-600">
+            <div className="flex items-center gap-2 rounded-xl bg-white/[0.06] px-4 py-3 text-sm text-slate-300">
               <Plane className="h-4 w-4 shrink-0" /> On the ground. Dispatch an approved order from{' '}
-              <Link to="/ops/orders?status=approved" className="font-semibold text-brand-700">
+              <Link to="/ops/orders?status=approved" className="font-semibold text-brand-300">
                 Orders
               </Link>
               .

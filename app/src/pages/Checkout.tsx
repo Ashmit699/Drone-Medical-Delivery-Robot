@@ -36,7 +36,7 @@ function Section({ n, title, children, done }: { n: number; title: string; child
   return (
     <section className="card p-5 sm:p-6">
       <h2 className="mb-4 flex items-center gap-3 text-lg font-bold">
-        <span className={cx('grid h-7 w-7 place-items-center rounded-full text-sm', done ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-600')}>
+        <span className={cx('grid h-7 w-7 place-items-center rounded-full text-sm', done ? 'bg-brand-600 text-white' : 'bg-white/[0.06] text-slate-300')}>
           {done ? <Check className="h-4 w-4" /> : n}
         </span>
         {title}
@@ -170,32 +170,32 @@ export default function Checkout() {
                     onClick={() => pickAddress(a)}
                     className={cx(
                       'flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition',
-                      selectedAddress === a.id ? 'border-brand-500 bg-brand-50 ring-2 ring-brand-500/20' : 'border-slate-200 hover:border-slate-300',
+                      selectedAddress === a.id ? 'border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/20' : 'border-line hover:border-white/20',
                     )}
                   >
-                    <MapPin className="h-4 w-4 text-brand-600" />
+                    <MapPin className="h-4 w-4 text-brand-400" />
                     <span>
                       <span className="block font-semibold">{a.label}</span>
-                      <span className="block text-xs text-slate-500">{a.line}</span>
+                      <span className="block text-xs text-slate-400">{a.line}</span>
                     </span>
                   </button>
                 ))}
               </div>
             )}
-            <div className="mb-2 inline-flex rounded-xl bg-slate-100 p-1 text-sm">
+            <div className="mb-2 inline-flex rounded-xl bg-white/[0.06] p-1 text-sm">
               {[true, false].map((is3d) => (
                 <button
                   key={String(is3d)}
                   type="button"
                   onClick={() => setView3d(is3d)}
-                  className={cx('rounded-lg px-3 py-1.5 font-semibold', view3d === is3d ? 'bg-white shadow-sm' : 'text-slate-500')}
+                  className={cx('rounded-lg px-3 py-1.5 font-semibold', view3d === is3d ? 'bg-panel shadow-sm' : 'text-slate-400')}
                 >
                   {is3d ? '3D view' : '2D map'}
                 </button>
               ))}
             </div>
             {view3d ? (
-              <Suspense fallback={<div className="grid h-80 place-items-center rounded-2xl border border-slate-200"><Spinner /></div>}>
+              <Suspense fallback={<div className="grid h-80 place-items-center rounded-2xl border border-line"><Spinner /></div>}>
                 <Map3D
                   config={config}
                   target={pin && { ...pin, groundAltM }}
@@ -205,7 +205,7 @@ export default function Checkout() {
                     setSelectedAddress(null);
                   }}
                   onRoute={setRoute}
-                  className="h-80 rounded-2xl border border-slate-200 sm:h-[420px]"
+                  className="h-80 rounded-2xl border border-line sm:h-[420px]"
                 />
               </Suspense>
             ) : (
@@ -221,7 +221,7 @@ export default function Checkout() {
               />
             )}
             {view3d && route?.clearanceM != null && route.clearanceM < 10 && (
-              <p className="mt-2 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-800">
+              <p className="mt-2 flex items-start gap-2 rounded-xl bg-amber-500/10 p-3 text-xs text-amber-200">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 Something about {Math.round(route.maxObstacleM ?? 0)} m tall is under the route. The operator will raise the cruise altitude or pick a detour before launch.
               </p>
@@ -237,7 +237,7 @@ export default function Checkout() {
               </div>
             </div>
             {selectedAddress == null && (
-              <label className="mt-3 flex items-center gap-2 text-sm text-slate-600">
+              <label className="mt-3 flex items-center gap-2 text-sm text-slate-300">
                 <input type="checkbox" className="h-4 w-4 accent-brand-600" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} />
                 Save this address for next time
               </label>
@@ -255,22 +255,22 @@ export default function Checkout() {
                     'rounded-2xl border p-4 text-left transition',
                     priority === p
                       ? p === 'emergency'
-                        ? 'border-red-500 bg-red-50 ring-2 ring-red-500/20'
-                        : 'border-brand-500 bg-brand-50 ring-2 ring-brand-500/20'
-                      : 'border-slate-200 hover:border-slate-300',
+                        ? 'border-red-500 bg-red-500/10 ring-2 ring-red-500/20'
+                        : 'border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/20'
+                      : 'border-line hover:border-white/20',
                   )}
                 >
-                  <div className={cx('flex items-center justify-between', p === 'emergency' ? 'text-red-600' : 'text-brand-700')}>
+                  <div className={cx('flex items-center justify-between', p === 'emergency' ? 'text-red-400' : 'text-brand-300')}>
                     {PRIORITY_ICONS[p]}
                     <span className="text-sm font-bold">{config.fees[p] === 0 ? 'Free' : rupees(config.fees[p])}</span>
                   </div>
                   <div className="mt-3 font-semibold">{PRIORITY_META[p].label}</div>
-                  <div className="text-xs text-slate-500">{PRIORITY_META[p].blurb}</div>
+                  <div className="text-xs text-slate-400">{PRIORITY_META[p].blurb}</div>
                 </button>
               ))}
             </div>
             {priority === 'emergency' && (
-              <p className="mt-3 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-700">
+              <p className="mt-3 flex items-start gap-2 rounded-xl bg-red-500/10 p-3 text-xs text-red-300">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 For life-threatening emergencies, also call 108 / 112. The drone brings supplies, not a doctor.
               </p>
@@ -278,10 +278,10 @@ export default function Checkout() {
           </Section>
 
           <Section n={3} title="Is the drop zone safe?" done={safetyDone}>
-            <p className="mb-3 text-sm text-slate-500">The drone hovers about {config.flight.dropAltM} m up and lowers the package on a rope.</p>
+            <p className="mb-3 text-sm text-slate-400">The drone hovers about {config.flight.dropAltM} m up and lowers the package on a rope.</p>
             <div className="space-y-2">
               {SAFETY.map((s, i) => (
-                <label key={s} className={cx('flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition', checks[i] ? 'border-brand-300 bg-brand-50' : 'border-slate-200')}>
+                <label key={s} className={cx('flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition', checks[i] ? 'border-brand-500/40 bg-brand-500/10' : 'border-line')}>
                   <input
                     type="checkbox"
                     className="mt-0.5 h-4 w-4 accent-brand-600"
@@ -296,24 +296,24 @@ export default function Checkout() {
 
           {totals.rxRequired && (
             <Section n={4} title="Prescription" done={rxDone}>
-              <p className="mb-3 text-sm text-slate-500">A pharmacist checks this before your order is approved.</p>
+              <p className="mb-3 text-sm text-slate-400">A pharmacist checks this before your order is approved.</p>
               {rxImage ? (
                 <div className="flex items-center gap-4">
                   <img src={rxImage} alt="Prescription preview" className="h-24 w-24 rounded-xl border object-cover" />
                   <div>
-                    <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-300">
                       <FileCheck2 className="h-4 w-4" /> Prescription attached
                     </div>
-                    <button className="mt-1 text-sm text-slate-500 underline" onClick={() => setRxImage(null)}>
+                    <button className="mt-1 text-sm text-slate-400 underline" onClick={() => setRxImage(null)}>
                       Replace
                     </button>
                   </div>
                 </div>
               ) : (
-                <label className="flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed border-slate-300 px-6 py-8 text-center hover:border-brand-400 hover:bg-brand-50/50">
-                  <Camera className="h-8 w-8 text-slate-400" />
+                <label className="flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed border-white/20 px-6 py-8 text-center hover:border-brand-400 hover:bg-brand-500/5">
+                  <Camera className="h-8 w-8 text-slate-500" />
                   <span className="mt-2 text-sm font-semibold">Take or upload a photo</span>
-                  <span className="text-xs text-slate-500">JPG or PNG</span>
+                  <span className="text-xs text-slate-400">JPG or PNG</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -336,11 +336,11 @@ export default function Checkout() {
                   key={p.id}
                   type="button"
                   onClick={() => setPayment(p.id)}
-                  className={cx('rounded-2xl border p-4 text-left transition', payment === p.id ? 'border-brand-500 bg-brand-50 ring-2 ring-brand-500/20' : 'border-slate-200 hover:border-slate-300')}
+                  className={cx('rounded-2xl border p-4 text-left transition', payment === p.id ? 'border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/20' : 'border-line hover:border-white/20')}
                 >
-                  <p.icon className="h-5 w-5 text-brand-700" />
+                  <p.icon className="h-5 w-5 text-brand-300" />
                   <div className="mt-3 text-sm font-semibold">{p.label}</div>
-                  <div className="text-xs text-slate-500">{p.sub}</div>
+                  <div className="text-xs text-slate-400">{p.sub}</div>
                 </button>
               ))}
             </div>
@@ -358,7 +358,7 @@ export default function Checkout() {
                 <ProductIcon icon={l.icon} category={l.category} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="line-clamp-1 font-medium">{l.name}</div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-400">
                     {l.qty} × {rupees(l.price)}
                   </div>
                 </div>
@@ -367,24 +367,30 @@ export default function Checkout() {
             ))}
           </ul>
           <PayloadMeter weightG={quote?.weightG ?? totals.weightG} maxG={config.maxPayloadG} compact />
-          <dl className="space-y-2 border-t border-slate-100 pt-4 text-sm">
+          <dl className="space-y-2 border-t border-line pt-4 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Items</dt>
+              <dt className="text-slate-400">Items</dt>
               <dd>{rupees(quote?.itemsTotal ?? totals.subtotal)}</dd>
             </div>
+            {!!quote?.subsidy && (
+              <div className="flex justify-between text-violet-300">
+                <dt>Welfare subsidy ({quote.welfare?.category} −{quote.welfare?.pct}%)</dt>
+                <dd className="font-mono">−{rupees(quote.subsidy)}</dd>
+              </div>
+            )}
             <div className="flex justify-between">
-              <dt className="text-slate-500">Drone delivery ({PRIORITY_META[priority].label})</dt>
-              <dd>{config.fees[priority] === 0 ? <span className="font-semibold text-emerald-600">Free</span> : rupees(config.fees[priority])}</dd>
+              <dt className="text-slate-400">Drone delivery ({quote?.welfare ? 'welfare' : PRIORITY_META[priority].label})</dt>
+              <dd>{(quote ? quote.deliveryFee - quote.distanceFee : config.fees[priority]) === 0 ? <span className="font-semibold text-emerald-400">Free</span> : rupees(config.fees[priority])}</dd>
             </div>
             {!!quote?.distanceFee && (
               <div className="flex justify-between">
-                <dt className="text-slate-500">Distance ({rupees(config.perKmFee)}/km after {config.includedKm} km)</dt>
+                <dt className="text-slate-400">Distance ({rupees(config.perKmFee)}/km after {config.includedKm} km)</dt>
                 <dd>{rupees(quote.distanceFee)}</dd>
               </div>
             )}
             {quote?.distanceM != null && (
               <div className="flex justify-between">
-                <dt className="text-slate-500">Flight</dt>
+                <dt className="text-slate-400">Flight</dt>
                 <dd>
                   {km(quote.distanceM)} · ~{duration(quote.etaS ?? 0)}
                 </dd>
@@ -392,11 +398,11 @@ export default function Checkout() {
             )}
             {quote?.batteryUsePct != null && (
               <div className="flex justify-between">
-                <dt className="text-slate-500">Battery for round trip</dt>
+                <dt className="text-slate-400">Battery for round trip</dt>
                 <dd>~{quote.batteryUsePct}%</dd>
               </div>
             )}
-            <div className="flex justify-between border-t border-slate-100 pt-3 text-base font-bold">
+            <div className="flex justify-between border-t border-line pt-3 text-base font-bold">
               <dt>Total</dt>
               <dd>{rupees(quote?.total ?? totals.subtotal + config.fees[priority])}</dd>
             </div>
@@ -417,7 +423,7 @@ export default function Checkout() {
             {placing ? <Spinner className="h-4 w-4 text-white" /> : null}
             {placing ? 'Placing order…' : `Place order · ${rupees(quote?.total ?? 0)}`}
           </button>
-          {missing.length > 0 && <p className="text-center text-xs text-slate-500">Still needed: {missing.join(', ')}</p>}
+          {missing.length > 0 && <p className="text-center text-xs text-slate-400">Still needed: {missing.join(', ')}</p>}
         </aside>
       </div>
     </div>

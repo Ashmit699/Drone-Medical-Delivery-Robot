@@ -33,30 +33,30 @@ export default function Cart() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div className="flex items-end justify-between">
         <h1 className="text-3xl font-extrabold tracking-tight">Cart</h1>
-        <button className="text-sm font-medium text-slate-500 hover:text-red-600" onClick={clear}>
+        <button className="text-sm font-medium text-slate-400 hover:text-red-400" onClick={clear}>
           Clear cart
         </button>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-        <ul className="card divide-y divide-slate-100">
+        <ul className="card divide-y divide-line">
           {lines.map((l) => (
             <li key={l.productId} className="flex items-center gap-4 p-4">
               <Link to={`/shop/${l.slug}`}>
                 <ProductIcon icon={l.icon} category={l.category} size="sm" />
               </Link>
               <div className="min-w-0 flex-1">
-                <Link to={`/shop/${l.slug}`} className="line-clamp-1 font-semibold hover:text-brand-700">
+                <Link to={`/shop/${l.slug}`} className="line-clamp-1 font-semibold hover:text-brand-300">
                   {l.name}
                 </Link>
-                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-400">
                   <span>{rupees(l.price)} each</span>·<span>{l.weightG * l.qty} g</span>
-                  {l.rxRequired && <span className="rounded bg-violet-100 px-1.5 font-semibold text-violet-700">Rx</span>}
+                  {l.rxRequired && <span className="rounded bg-violet-500/15 px-1.5 font-semibold text-violet-300">Rx</span>}
                 </div>
               </div>
               <QtyStepper size="sm" qty={l.qty} max={Math.min(l.stock, 20)} onChange={(q) => setQty(l.productId, q)} />
               <div className="hidden w-20 text-right font-semibold sm:block">{rupees(l.price * l.qty)}</div>
-              <button className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600" onClick={() => remove(l.productId)} aria-label="Remove">
+              <button className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400" onClick={() => remove(l.productId)} aria-label="Remove">
                 <Trash2 className="h-4 w-4" />
               </button>
             </li>
@@ -67,16 +67,16 @@ export default function Cart() {
           <PayloadMeter weightG={totals.weightG} maxG={maxG} />
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Items ({totals.count})</dt>
+              <dt className="text-slate-400">Items ({totals.count})</dt>
               <dd className="font-medium">{rupees(totals.subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-500">Drone delivery</dt>
-              <dd className="text-slate-500">from {rupees(config?.fees.standard ?? 49)} · free for emergencies</dd>
+              <dt className="text-slate-400">Drone delivery</dt>
+              <dd className="text-slate-400">from {rupees(config?.fees.standard ?? 49)} · free for emergencies</dd>
             </div>
           </dl>
           {totals.rxRequired && (
-            <div className="flex gap-2 rounded-xl bg-violet-50 p-3 text-xs text-violet-800">
+            <div className="flex gap-2 rounded-xl bg-violet-500/10 p-3 text-xs text-violet-200">
               <FileCheck2 className="h-4 w-4 shrink-0" /> Your cart has prescription items. Have a photo of your prescription ready.
             </div>
           )}

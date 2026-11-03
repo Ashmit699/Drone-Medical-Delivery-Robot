@@ -59,9 +59,9 @@ export default function Features() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
       <div className="max-w-2xl">
-        <p className="text-sm font-semibold uppercase tracking-widest text-brand-600">Features</p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-brand-400">Features</p>
         <h1 className="mt-2 text-4xl font-extrabold tracking-tight">Everything needed to fly medicine safely</h1>
-        <p className="mt-4 text-lg text-slate-600">A customer app, an operator console and the drone itself, designed as one system.</p>
+        <p className="mt-4 text-lg text-slate-300">A customer app, an operator console and the drone itself, designed as one system.</p>
       </div>
 
       <div className="mt-14 space-y-14">
@@ -75,7 +75,7 @@ export default function Features() {
                     <f.icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-4 font-semibold">{f.title}</h3>
-                  <p className="mt-1.5 text-sm text-slate-600">{f.text}</p>
+                  <p className="mt-1.5 text-sm text-slate-300">{f.text}</p>
                 </div>
               ))}
             </div>

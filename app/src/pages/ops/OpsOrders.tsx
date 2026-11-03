@@ -8,6 +8,7 @@ import { api, getSocket, useApi, useAppConfig } from '../../lib/api';
 import { cx, km, rupees, time, timeAgo } from '../../lib/format';
 import { PHASE_LABELS } from '../../lib/phases';
 import type { Drone, OrderDetail, OrderSummary } from '../../lib/types';
+import { useConditions } from '../../lib/live';
 import { useFleet } from '../../lib/useFleet';
 import { useLiveOrder } from '../../lib/useLiveOrder';
 
@@ -25,6 +26,7 @@ const MANUAL_CHECKS = ['Package hooked & gripper locked', 'Props and arms checke
 
 function DispatchModal({ order, onClose, onDone }: { order: OrderDetail; onClose: () => void; onDone: (o: OrderDetail) => void }) {
   const { drones } = useFleet();
+  const conditions = useConditions();
   const [droneId, setDroneId] = useState<string | null>(null);
   const [manual, setManual] = useState(MANUAL_CHECKS.map(() => false));
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +46,10 @@ function DispatchModal({ order, onClose, onDone }: { order: OrderDetail; onClose
         { label: `GPS lock ≥ 10 satellites (${t?.gpsSats ?? 0})`, ok: (t?.gpsSats ?? 0) >= 10 },
         { label: `Payload ${order.weight_g} g ≤ ${drone.max_payload_g} g`, ok: order.weight_g <= drone.max_payload_g },
         { label: 'Winch homed, rope retracted', ok: t?.payload.winch === 'homed' && (t?.payload.ropeM ?? 0) === 0 },
+        {
+          label: conditions?.available ? `Weather ${conditions.call} (wind ${Math.round(conditions.windKmh ?? 0)}, gust ${Math.round(conditions.gustKmh ?? 0)} km/h)` : 'Live weather unavailable: check manually',
+          ok: !conditions?.available || conditions.call !== 'NO-GO',
+        },
       ]
     : [];
   const ready = !!drone && auto.every((c) => c.ok) && manual.every(Boolean);
@@ -73,10 +79,10 @@ function DispatchModal({ order, onClose, onDone }: { order: OrderDetail; onClose
                 <button
                   key={d.id}
                   onClick={() => setDroneId(d.id)}
-                  className={cx('rounded-xl border p-3 text-left text-sm', droneId === d.id ? 'border-brand-500 bg-brand-50 ring-2 ring-brand-500/20' : 'border-slate-200')}
+                  className={cx('rounded-xl border p-3 text-left text-sm', droneId === d.id ? 'border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/20' : 'border-line')}
                 >
                   <div className="font-semibold">{d.name}</div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-400">
                     {d.id} · {d.telemetry ? Math.round(d.telemetry.batteryPct) : '?'}% · {d.adapter}
                   </div>
                 </button>
@@ -91,8 +97,8 @@ function DispatchModal({ order, onClose, onDone }: { order: OrderDetail; onClose
               <ul className="space-y-1.5 text-sm">
                 {auto.map((c) => (
                   <li key={c.label} className="flex items-center gap-2">
-                    {c.ok ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <XCircle className="h-4 w-4 text-red-500" />}
-                    <span className={c.ok ? '' : 'text-red-700'}>{c.label}</span>
+                    {c.ok ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <XCircle className="h-4 w-4 text-red-500" />}
+                    <span className={c.ok ? '' : 'text-red-300'}>{c.label}</span>
                   </li>
                 ))}
               </ul>
@@ -146,21 +152,21 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40" onClick={onClose}>
-      <div className="h-full w-full max-w-xl overflow-y-auto bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="h-full w-full max-w-xl overflow-y-auto bg-panel shadow-2xl" onClick={(e) => e.stopPropagation()}>
         {!order || !config ? (
           error ? <div className="p-6"><ErrorNote>{error}</ErrorNote></div> : <PageLoader />
         ) : (
           <>
-            <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-100 bg-white/95 px-6 py-4 backdrop-blur">
+            <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-panel/90 px-6 py-4 backdrop-blur">
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-lg font-bold">{order.code}</h2>
                   <StatusBadge status={order.status} />
                   <PriorityBadge priority={order.priority} />
                 </div>
-                <div className="text-xs text-slate-500">Placed {timeAgo(order.created_at)}</div>
+                <div className="text-xs text-slate-400">Placed {timeAgo(order.created_at)}</div>
               </div>
-              <button className="grid h-9 w-9 place-items-center rounded-lg hover:bg-slate-100" onClick={onClose} aria-label="Close">
+              <button className="grid h-9 w-9 place-items-center rounded-lg hover:bg-white/[0.06]" onClick={onClose} aria-label="Close">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -173,7 +179,7 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
                   <button className="btn-primary flex-1" onClick={() => act(`/ops/orders/${order.id}/approve`)}>
                     <Check className="h-4 w-4" /> {order.has_rx ? 'Prescription OK, approve' : 'Approve'}
                   </button>
-                  <button className="btn-secondary text-red-600" onClick={() => setRejecting(true)}>
+                  <button className="btn-secondary text-red-400" onClick={() => setRejecting(true)}>
                     <CircleX className="h-4 w-4" /> Reject
                   </button>
                 </div>
@@ -183,15 +189,15 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
                   <button className="btn-primary flex-1 py-3" onClick={() => setDispatching(true)}>
                     <Rocket className="h-4 w-4" /> Load & dispatch
                   </button>
-                  <button className="btn-secondary text-red-600" onClick={() => setRejecting(true)}>
+                  <button className="btn-secondary text-red-400" onClick={() => setRejecting(true)}>
                     Reject
                   </button>
                 </div>
               )}
               {phase === 'awaiting_clearance' && (
-                <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
-                  <div className="text-sm font-semibold text-amber-900">Drone is waiting for “area clear”</div>
-                  <p className="mt-1 text-xs text-amber-800">The customer can confirm from their phone. Only confirm yourself if you've verified the drop zone (e.g. by call).</p>
+                <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+                  <div className="text-sm font-semibold text-amber-100">Drone is waiting for “area clear”</div>
+                  <p className="mt-1 text-xs text-amber-200">The customer can confirm from their phone. Only confirm yourself if you've verified the drop zone (e.g. by call).</p>
                   <HoldButton className="btn mt-3 bg-amber-500 text-white hover:bg-amber-600" onComplete={() => act(`/orders/${order.id}/clearance`)}>
                     <Hand className="h-4 w-4" /> Hold: confirm area clear
                   </HoldButton>
@@ -200,7 +206,7 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
 
               {order.has_rx && (
                 <button
-                  className="flex w-full items-center gap-3 rounded-xl border border-violet-200 bg-violet-50 p-3 text-left text-sm text-violet-900"
+                  className="flex w-full items-center gap-3 rounded-xl border border-violet-500/30 bg-violet-500/10 p-3 text-left text-sm text-violet-100"
                   onClick={async () => setRx((await api<{ image: string }>(`/ops/orders/${order.id}/rx`)).image)}
                 >
                   <FileImage className="h-5 w-5" /> Prescription attached: <span className="font-semibold underline">view</span>
@@ -208,16 +214,16 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
               )}
 
               {['in_flight', 'delivered'].includes(order.status) && (
-                <div className="overflow-hidden rounded-2xl border border-slate-200">
+                <div className="overflow-hidden rounded-2xl border border-line">
                   <LiveMap hub={config.hub} targets={[{ lat: order.lat, lon: order.lon }]} drones={t ? [t] : []} className="h-56 w-full" />
                   {phase && t && (
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 bg-slate-50 px-4 py-2 text-xs text-slate-600">
-                      <b className="text-indigo-700">{PHASE_LABELS[phase]}</b>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 bg-white/[0.03] px-4 py-2 text-xs text-slate-300">
+                      <b className="text-indigo-300">{PHASE_LABELS[phase]}</b>
                       <span>{t.mode}</span>
                       <span>{t.altM.toFixed(1)} m</span>
                       <span>{Math.round(t.batteryPct)}%</span>
                       {t.markerErrorCm != null && <span>marker ±{Math.round(t.markerErrorCm)} cm</span>}
-                      <Link to="/ops/monitor" className="ml-auto font-semibold text-brand-700">
+                      <Link to="/ops/monitor" className="ml-auto font-semibold text-brand-300">
                         Monitor →
                       </Link>
                     </div>
@@ -227,34 +233,34 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
 
               <section className="grid gap-4 text-sm sm:grid-cols-2">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Customer</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Customer</div>
                   <div className="mt-1 font-semibold">{order.customer_name}</div>
                   {order.customer_phone && (
-                    <div className="flex items-center gap-1 text-slate-500">
+                    <div className="flex items-center gap-1 text-slate-400">
                       <Phone className="h-3.5 w-3.5" /> {order.customer_phone}
                     </div>
                   )}
                 </div>
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Drop location</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Drop location</div>
                   <div className="mt-1 flex items-start gap-1 font-semibold">
-                    <MapPin className="mt-0.5 h-3.5 w-3.5 text-brand-600" /> {order.address_label}
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 text-brand-400" /> {order.address_label}
                   </div>
-                  <div className="text-slate-500">{order.address_line}</div>
-                  <div className="text-xs text-slate-400">{km(order.distance_m)} from hub</div>
+                  <div className="text-slate-400">{order.address_line}</div>
+                  <div className="text-xs text-slate-500">{km(order.distance_m)} from hub</div>
                 </div>
               </section>
-              {order.notes && <div className="rounded-xl bg-slate-50 p-3 text-sm"><span className="font-semibold">Note: </span>{order.notes}</div>}
+              {order.notes && <div className="rounded-xl bg-white/[0.03] p-3 text-sm"><span className="font-semibold">Note: </span>{order.notes}</div>}
 
               <section>
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400">Items · {order.weight_g} g</div>
-                <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100 text-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Items · {order.weight_g} g</div>
+                <ul className="mt-2 divide-y divide-line rounded-xl border border-line text-sm">
                   {order.items.map((i) => (
                     <li key={i.product_id} className="flex justify-between px-3 py-2">
                       <span>
                         {i.qty} × {i.name}
                       </span>
-                      <span className="text-slate-500">{rupees(i.qty * i.price)}</span>
+                      <span className="text-slate-400">{rupees(i.qty * i.price)}</span>
                     </li>
                   ))}
                   <li className="flex justify-between px-3 py-2 font-semibold">
@@ -265,16 +271,16 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
               </section>
 
               <section>
-                <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Progress</div>
+                <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Progress</div>
                 <Journey order={order} />
               </section>
 
               <section>
-                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Event log</div>
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Event log</div>
                 <ul className="space-y-1.5 text-xs">
                   {[...order.events].reverse().map((e) => (
                     <li key={e.id} className="flex gap-3">
-                      <span className="w-14 shrink-0 tabular-nums text-slate-400">{time(e.created_at)}</span>
+                      <span className="w-14 shrink-0 tabular-nums text-slate-500">{time(e.created_at)}</span>
                       <span>{e.message}</span>
                     </li>
                   ))}
@@ -287,7 +293,7 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
               <input id="reason" className="input" placeholder="e.g. Prescription unclear, please re-upload" value={reason} onChange={(e) => setReason(e.target.value)} />
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {['Prescription unclear', 'Out of service area', 'Weather unsafe for flight'].map((r) => (
-                  <button key={r} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs hover:bg-slate-200" onClick={() => setReason(r)}>
+                  <button key={r} className="rounded-full bg-white/[0.06] px-2.5 py-1 text-xs hover:bg-white/10" onClick={() => setReason(r)}>
                     {r}
                   </button>
                 ))}
@@ -348,7 +354,7 @@ export default function OpsOrders() {
           <button
             key={t.key}
             onClick={() => set('status', t.key)}
-            className={cx('shrink-0 rounded-lg px-3 py-2 text-sm font-medium', status === t.key ? 'bg-ink text-white' : 'text-slate-600 hover:bg-slate-100')}
+            className={cx('shrink-0 rounded-lg px-3 py-2 text-sm font-medium', status === t.key ? 'bg-ink text-white' : 'text-slate-300 hover:bg-white/[0.06]')}
           >
             {t.label}
           </button>
@@ -362,7 +368,7 @@ export default function OpsOrders() {
       ) : (
         <div className="card overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
-            <thead className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
+            <thead className="border-b border-line text-left text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-4 py-3 font-semibold">Order</th>
                 <th className="px-4 py-3 font-semibold">Customer</th>
@@ -372,30 +378,30 @@ export default function OpsOrders() {
                 <th className="px-4 py-3 text-right font-semibold">Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-white/5">
               {data?.map((o) => (
-                <tr key={o.id} className="cursor-pointer hover:bg-slate-50" onClick={() => set('open', String(o.id))}>
+                <tr key={o.id} className="cursor-pointer hover:bg-white/[0.03]" onClick={() => set('open', String(o.id))}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 font-semibold">
                       {o.code} <PriorityBadge priority={o.priority} />
                     </div>
-                    <div className="text-xs text-slate-400">{timeAgo(o.created_at)}</div>
+                    <div className="text-xs text-slate-500">{timeAgo(o.created_at)}</div>
                   </td>
                   <td className="px-4 py-3">{o.customer_name}</td>
                   <td className="max-w-[240px] px-4 py-3">
-                    <div className="line-clamp-1 text-slate-600">{o.summary}</div>
-                    <div className="text-xs text-slate-400">
-                      {o.weight_g} g{!!o.has_rx && <span className="ml-1 font-semibold text-violet-600">· Rx</span>}
+                    <div className="line-clamp-1 text-slate-300">{o.summary}</div>
+                    <div className="text-xs text-slate-500">
+                      {o.weight_g} g{!!o.has_rx && <span className="ml-1 font-semibold text-violet-400">· Rx</span>}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-slate-300">
                     {o.address_label}
-                    <div className="text-xs text-slate-400">{km(o.distance_m)}</div>
+                    <div className="text-xs text-slate-500">{km(o.distance_m)}</div>
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={o.status} />
                     {o.status === 'in_flight' && o.mission_phase && (
-                      <div className="mt-1 flex items-center gap-1 text-xs text-indigo-600">
+                      <div className="mt-1 flex items-center gap-1 text-xs text-indigo-400">
                         <Plane className="h-3 w-3" /> {PHASE_LABELS[o.mission_phase]}
                       </div>
                     )}
@@ -408,7 +414,7 @@ export default function OpsOrders() {
         </div>
       )}
       {openId != null && <OrderDrawer id={openId} onClose={() => set('open', null)} />}
-      <p className="flex items-center gap-1 text-xs text-slate-400">
+      <p className="flex items-center gap-1 text-xs text-slate-500">
         <ExternalLink className="h-3 w-3" /> Click a row to open it. Updates arrive live.
       </p>
     </div>

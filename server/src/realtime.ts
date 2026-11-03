@@ -25,6 +25,7 @@ export function initRealtime(server: HttpServer) {
 
   io.on('connection', (socket) => {
     const user = verifyToken(socket.handshake.auth?.token);
+    if (user) socket.join(`user:${user.id}`);
     if (user?.role === 'operator') {
       socket.join('ops');
       socket.emit('fleet', drones.allTelemetry());
@@ -58,5 +59,15 @@ export function emitOrderUpdate(orderId: number) {
   if (!io) return;
   const detail = getOrderDetail(orderId);
   if (!detail) return;
-  io.to(`order:${orderId}`).to('ops').emit('order:update', detail);
+  io.to(`order:${orderId}`).to(`user:${detail.user_id}`).to('ops').emit('order:update', detail);
+}
+
+/** Push an event to one user's open tabs (e.g. welfare verified). */
+export function emitToUser(userId: number, event: string, payload: unknown) {
+  io?.to(`user:${userId}`).emit(event, payload);
+}
+
+/** Push an event to all operators. */
+export function emitToOps(event: string, payload: unknown) {
+  io?.to('ops').emit(event, payload);
 }

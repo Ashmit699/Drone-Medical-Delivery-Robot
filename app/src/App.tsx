@@ -2,7 +2,9 @@ import { Compass } from 'lucide-react';
 import { lazy, Suspense, useEffect } from 'react';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { OpsLayout, PublicLayout, RequireAuth } from './components/layout';
+import { Toaster } from './components/Toaster';
 import { Empty, PageLoader } from './components/ui';
+import { useNotifications } from './lib/useNotifications';
 import { Login, Register } from './pages/Auth';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
@@ -14,6 +16,9 @@ import Profile from './pages/Profile';
 import Shop from './pages/Shop';
 import Technology from './pages/Technology';
 import Track from './pages/Track';
+import Welfare from './pages/Welfare';
+
+const Live = lazy(() => import('./pages/Live'));
 
 // Operator console is loaded on demand so customers' phones download less.
 const Dashboard = lazy(() => import('./pages/ops/Dashboard'));
@@ -21,6 +26,7 @@ const Fleet = lazy(() => import('./pages/ops/Fleet'));
 const Inventory = lazy(() => import('./pages/ops/Inventory'));
 const Monitor = lazy(() => import('./pages/ops/Monitor'));
 const OpsOrders = lazy(() => import('./pages/ops/OpsOrders'));
+const WelfareQueue = lazy(() => import('./pages/ops/WelfareQueue'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -43,15 +49,19 @@ function NotFound() {
 }
 
 export default function App() {
+  useNotifications();
   return (
     <>
       <ScrollToTop />
+      <Toaster />
       <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route element={<PublicLayout />}>
           <Route index element={<Home />} />
           <Route path="features" element={<Features />} />
           <Route path="technology" element={<Technology />} />
+          <Route path="live" element={<Live />} />
+          <Route path="welfare" element={<Welfare />} />
           <Route path="shop" element={<Shop />} />
           <Route path="shop/:slug" element={<ProductPage />} />
           <Route path="cart" element={<Cart />} />
@@ -69,6 +79,7 @@ export default function App() {
           <Route path="monitor" element={<Monitor />} />
           <Route path="fleet" element={<Fleet />} />
           <Route path="inventory" element={<Inventory />} />
+          <Route path="welfare" element={<WelfareQueue />} />
         </Route>
       </Routes>
       </Suspense>

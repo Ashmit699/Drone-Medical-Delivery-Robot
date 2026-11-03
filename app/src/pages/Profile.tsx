@@ -25,11 +25,11 @@ export default function Profile() {
         <div className="grid h-16 w-16 place-items-center rounded-2xl bg-brand-600 text-2xl font-bold text-white">{me.name[0]}</div>
         <div className="flex-1">
           <h1 className="text-2xl font-bold">{me.name}</h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             {me.email}
             {me.phone && ` · ${me.phone}`}
           </p>
-          <p className="text-xs text-slate-400">Member since {dateTime(me.created_at)}</p>
+          <p className="text-xs text-slate-500">Member since {dateTime(me.created_at)}</p>
         </div>
         <button
           className="btn-secondary"
@@ -53,15 +53,15 @@ export default function Profile() {
         ) : (
           addresses?.map((a) => (
             <div key={a.id} className="card flex items-center gap-4 p-4">
-              <MapPin className="h-5 w-5 text-brand-600" />
+              <MapPin className="h-5 w-5 text-brand-400" />
               <div className="flex-1">
                 <div className="font-semibold">{a.label}</div>
-                <div className="text-sm text-slate-500">{a.line}</div>
-                <div className="text-xs text-slate-400">
+                <div className="text-sm text-slate-400">{a.line}</div>
+                <div className="text-xs text-slate-500">
                   {a.lat.toFixed(5)}, {a.lon.toFixed(5)}
                 </div>
               </div>
-              <button className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600" onClick={() => remove(a.id)} aria-label={`Delete ${a.label}`}>
+              <button className="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400" onClick={() => remove(a.id)} aria-label={`Delete ${a.label}`}>
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>

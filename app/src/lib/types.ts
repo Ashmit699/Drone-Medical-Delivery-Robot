@@ -55,6 +55,7 @@ export interface Product {
   rx_required: number;
   icon: string;
   tags: string;
+  badge: string | null;
 }
 
 export interface Address extends LatLon {
@@ -71,6 +72,8 @@ export interface Quote {
   distanceFee: number;
   deliveryFee: number;
   batteryUsePct: number | null;
+  subsidy: number;
+  welfare: { pct: number; category: string; label: string } | null;
   total: number;
   distanceM: number | null;
   etaS: number | null;
@@ -113,6 +116,7 @@ export interface OrderDetail {
   status: OrderStatus;
   priority: Priority;
   items_total: number;
+  subsidy: number;
   delivery_fee: number;
   total: number;
   weight_g: number;
@@ -194,4 +198,5 @@ export interface Stats {
   byCategory: { category: string; qty: number }[];
   byPriority: { priority: Priority; n: number }[];
   lowStock: { id: number; name: string; stock: number }[];
+  welfarePending: number;
 }

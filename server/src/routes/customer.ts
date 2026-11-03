@@ -1,11 +1,12 @@
 // Routes for logged-in customers: addresses, quotes, checkout, their orders.
 import { Router } from 'express';
 import { z } from 'zod';
-import { all, run } from '../db';
+import { all, one, run } from '../db';
 import { drones } from '../drone/manager';
 import { HttpError, requireAuth } from '../lib/auth';
 import { cancelOrder, createOrder, getOrderDetail, listOrders, quote, sendClearance } from '../orders';
-import { emitOrderUpdate } from '../realtime';
+import { emitOrderUpdate, emitToOps } from '../realtime';
+import { maskDoc, WELFARE_DISCOUNT, WELFARE_LABEL, type WelfareRow } from '../welfare';
 
 export const customerRoutes = Router();
 customerRoutes.use(requireAuth);
@@ -49,7 +50,7 @@ customerRoutes.post('/orders/quote', (req, res) => {
   const body = z
     .object({ items: itemsSchema, lat: z.number().optional(), lon: z.number().optional(), priority: prioritySchema.default('standard') })
     .parse(req.body);
-  res.json(quote(body));
+  res.json(quote(body, req.user!.id));
 });
 
 const orderSchema = z.object({
@@ -118,4 +119,37 @@ customerRoutes.post('/orders/:id/rate', (req, res) => {
   run('UPDATE orders SET rating = ?, feedback = ? WHERE id = ?', rating, feedback ?? null, id);
   emitOrderUpdate(id);
   res.json(getOrderDetail(id));
+});
+
+// ---------- Welfare subsidy ----------
+
+const publicWelfare = (w: WelfareRow | undefined) =>
+  w ? { ...w, doc_id: maskDoc(w.doc_id), discountPct: WELFARE_DISCOUNT[w.category], label: WELFARE_LABEL[w.category] } : null;
+
+customerRoutes.get('/welfare', (req, res) => {
+  res.json(publicWelfare(one<WelfareRow>('SELECT * FROM welfare WHERE user_id = ?', req.user!.id)));
+});
+
+customerRoutes.post('/welfare', (req, res) => {
+  const body = z
+    .object({
+      category: z.enum(['BPL', 'SC', 'ST', 'EWS']),
+      docId: z.string().trim().min(4).max(40),
+      fullName: z.string().trim().min(2).max(80),
+      location: z.string().trim().min(3).max(120),
+    })
+    .parse(req.body);
+  run(
+    `INSERT INTO welfare (user_id, category, doc_id, full_name, location, status) VALUES (?, ?, ?, ?, ?, 'pending')
+     ON CONFLICT(user_id) DO UPDATE SET category = excluded.category, doc_id = excluded.doc_id, full_name = excluded.full_name,
+       location = excluded.location, status = 'pending', note = NULL, created_at = datetime('now'), reviewed_at = NULL`,
+    req.user!.id, body.category, body.docId, body.fullName, body.location,
+  );
+  emitToOps('welfare:new', { name: body.fullName, category: body.category });
+  res.status(201).json(publicWelfare(one<WelfareRow>('SELECT * FROM welfare WHERE user_id = ?', req.user!.id)));
+});
+
+customerRoutes.delete('/welfare', (req, res) => {
+  run('DELETE FROM welfare WHERE user_id = ?', req.user!.id);
+  res.status(204).end();
 });

@@ -123,6 +123,7 @@ export default function Map3D({
   onPick,
   onRoute,
   drone,
+  chase,
   className,
 }: {
   config: AppConfig;
@@ -130,6 +131,7 @@ export default function Map3D({
   onPick?: (p: Pick3D) => void;
   onRoute?: (r: RouteInfo) => void;
   drone?: Telemetry | null;
+  chase?: boolean; // follow the drone like an onboard/chase camera
   className?: string;
 }) {
   const container = useRef<HTMLDivElement>(null);
@@ -317,7 +319,24 @@ export default function Map3D({
       const last = st.trail.at(-1);
       if (!last || Cartesian3.distance(last, p) > 1) st.trail = [...st.trail.slice(-400), p];
     }
-  }, [drone, hubGround]);
+    const viewer = viewerRef.current;
+    if (chase && drone && viewer && !viewer.isDestroyed()) {
+      // Sit behind and above the drone, looking down at it along its heading.
+      const back = drone.armed ? 70 : 180;
+      const up = drone.armed ? 35 : 150;
+      const h = CMath.toRadians(drone.headingDeg);
+      const mPerDegLat = 110_540;
+      const mPerDegLon = 111_320 * Math.cos(CMath.toRadians(drone.position.lat));
+      viewer.camera.setView({
+        destination: Cartesian3.fromDegrees(
+          drone.position.lon - (Math.sin(h) * back) / mPerDegLon,
+          drone.position.lat - (Math.cos(h) * back) / mPerDegLat,
+          hubGround + drone.altM + up,
+        ),
+        orientation: { heading: h, pitch: -Math.atan2(up, back), roll: 0 },
+      });
+    }
+  }, [drone, hubGround, chase]);
 
   const view = (top: boolean) => {
     const v = viewerRef.current;
@@ -334,9 +353,9 @@ export default function Map3D({
       <div ref={container} className="h-full w-full" />
       <div className="pointer-events-none absolute left-3 top-3 flex flex-col gap-1.5">
         <span className="w-fit rounded-full bg-ink/85 px-3 py-1 text-xs font-semibold text-white">{source ? SOURCE_LABEL[source] : 'Loading 3D…'}</span>
-        <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-[11px] text-slate-700">Demo zone ≈ {config.demoArea.areaKm2} km²</span>
+        <span className="w-fit rounded-full bg-panel/85 px-3 py-1 text-[11px] text-slate-200">Demo zone ≈ {config.demoArea.areaKm2} km²</span>
       </div>
-      <div className="absolute right-3 top-3 flex gap-1.5">
+      <div className={`absolute right-3 top-3 flex gap-1.5 ${chase ? 'hidden' : ''}`}>
         <button type="button" className="btn-secondary px-2.5 py-1.5 text-xs" onClick={() => view(false)}>
           3D view
         </button>
@@ -344,7 +363,7 @@ export default function Map3D({
           Top view
         </button>
       </div>
-      {(note || (onPick && !target)) && (
+      {!chase && (note || (onPick && !target)) && (
         <div className="pointer-events-none absolute inset-x-0 bottom-8 mx-auto w-fit rounded-full bg-ink/85 px-4 py-1.5 text-xs font-medium text-white">
           {note ?? 'Click the ground inside the circle to place your drop marker'}
         </div>

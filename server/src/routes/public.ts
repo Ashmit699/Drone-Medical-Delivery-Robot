@@ -6,6 +6,8 @@ import { config } from '../config';
 import { all, one, run } from '../db';
 import { HttpError, requireAuth, signToken, type AuthUser, type Role } from '../lib/auth';
 import { offsetM } from '../lib/geo';
+import { drones } from '../drone/manager';
+import { getConditions } from '../weather';
 
 export const publicRoutes = Router();
 
@@ -86,4 +88,51 @@ publicRoutes.get('/products/:slug', (req, res) => {
   if (!p) throw new HttpError(404, 'Product not found');
   const related = all('SELECT * FROM products WHERE category = ? AND id != ? LIMIT 4', p.category, p.id);
   res.json({ ...p, related });
+});
+
+// ---------- Live, anonymous data for the home page + airspace view ----------
+
+publicRoutes.get('/conditions', async (_req, res) => {
+  res.json(await getConditions());
+});
+
+publicRoutes.get('/public/stats', (_req, res) => {
+  const n = (sql: string) => one<{ n: number | null }>(sql)?.n ?? 0;
+  const delivered = n(`SELECT COUNT(*) AS n FROM orders WHERE status = 'delivered'`);
+  const done = n(`SELECT COUNT(*) AS n FROM orders WHERE status IN ('delivered','failed')`);
+  const avg = one<{ m: number | null }>(
+    `SELECT AVG((julianday(delivered_at) - julianday(dispatched_at)) * 1440) AS m FROM orders WHERE delivered_at IS NOT NULL AND dispatched_at IS NOT NULL`,
+  )?.m;
+  const fleet = drones.allTelemetry();
+  res.json({
+    delivered,
+    successRate: done ? Math.round((delivered / done) * 100) : null,
+    avgDeliveryMin: avg != null ? Math.round(avg * 10) / 10 : null,
+    dronesOnline: fleet.filter((t) => t.connected).length,
+    inFlight: fleet.filter((t) => t.armed).length,
+    livesReached: n(`SELECT COUNT(DISTINCT user_id) AS n FROM orders WHERE status = 'delivered'`),
+  });
+});
+
+publicRoutes.get('/public/fleet', (_req, res) => {
+  const names = Object.fromEntries(all<{ id: string; name: string; status: string }>('SELECT id, name, status FROM drones').map((d) => [d.id, d]));
+  res.json(
+    drones.allTelemetry().map((t) => ({
+      id: t.droneId,
+      name: names[t.droneId]?.name,
+      status: names[t.droneId]?.status,
+      connected: t.connected,
+      armed: t.armed,
+      phase: t.phase,
+      mode: t.mode,
+      position: t.position,
+      altM: t.altM,
+      headingDeg: t.headingDeg,
+      groundSpeedMs: t.groundSpeedMs,
+      batteryPct: t.batteryPct,
+      gpsSats: t.gpsSats,
+      payload: t.payload,
+      markerErrorCm: t.markerErrorCm,
+    })),
+  );
 });

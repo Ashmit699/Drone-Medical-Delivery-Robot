@@ -7,6 +7,7 @@ import { PHASE_LABELS, type MissionPlan, type PhaseEvent } from './drone/types';
 import { HttpError } from './lib/auth';
 import { distanceM } from './lib/geo';
 import { emitOrderUpdate } from './realtime';
+import { welfareDiscount, WELFARE_LABEL } from './welfare';
 
 export type OrderStatus = 'placed' | 'approved' | 'rejected' | 'cancelled' | 'in_flight' | 'delivered' | 'failed';
 
@@ -65,7 +66,7 @@ export function estimateEtaS(distM: number) {
   return Math.round(5 + cruiseAltM / 2.5 + distM / cruiseSpeedMs + 45);
 }
 
-export function quote(input: QuoteInput) {
+export function quote(input: QuoteInput, userId?: number) {
   const problems: string[] = [];
   const lines = input.items.map(({ productId, qty }) => {
     const p = one<ProductRow>('SELECT * FROM products WHERE id = ?', productId);
@@ -91,9 +92,12 @@ export function quote(input: QuoteInput) {
     }
   }
 
-  const baseFee = config.fees[input.priority];
+  // Verified welfare beneficiaries: direct discount on items and free delivery.
+  const welfare = welfareDiscount(userId);
+  const subsidy = welfare ? Math.round((itemsTotal * welfare.pct) / 100) : 0;
+  const baseFee = welfare ? 0 : config.fees[input.priority];
   const distanceFee =
-    input.priority === 'emergency' || distance == null ? 0 : Math.round(Math.max(0, distance / 1000 - config.includedKm) * config.perKmFee);
+    welfare || input.priority === 'emergency' || distance == null ? 0 : Math.round(Math.max(0, distance / 1000 - config.includedKm) * config.perKmFee);
   const deliveryFee = baseFee + distanceFee;
   const etaS = distance != null ? estimateEtaS(distance) : null;
   return {
@@ -103,7 +107,9 @@ export function quote(input: QuoteInput) {
     baseFee,
     distanceFee,
     deliveryFee,
-    total: itemsTotal + deliveryFee,
+    subsidy,
+    welfare: welfare ? { ...welfare, label: WELFARE_LABEL[welfare.category] } : null,
+    total: itemsTotal - subsidy + deliveryFee,
     distanceM: distance,
     etaS,
     // Out and back plus hover/drop time, as a share of one battery.
@@ -125,7 +131,7 @@ export interface CreateOrderInput extends QuoteInput {
 }
 
 export function createOrder(userId: number, input: CreateOrderInput): number {
-  const q = quote(input);
+  const q = quote(input, userId);
   if (q.problems.length) throw new HttpError(400, q.problems.join('. '));
   if (q.rxRequired && !input.rxImage) throw new HttpError(400, 'A prescription photo is required for Rx items');
 
@@ -135,11 +141,11 @@ export function createOrder(userId: number, input: CreateOrderInput): number {
   const id = tx(() => {
     const { id } = run(
       `INSERT INTO orders (user_id, status, priority, items_total, delivery_fee, total, weight_g, payment_method,
-         payment_status, address_label, address_line, lat, lon, distance_m, eta_s, notes, rx_image, ground_alt_m)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         payment_status, address_label, address_line, lat, lon, distance_m, eta_s, notes, rx_image, ground_alt_m, subsidy)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       userId, autoApprove ? 'approved' : 'placed', input.priority, q.itemsTotal, q.deliveryFee, q.total, q.weightG,
       input.paymentMethod, paymentStatus, input.addressLabel, input.addressLine, input.lat, input.lon, q.distanceM!, q.etaS!,
-      input.notes ?? null, input.rxImage ?? null, input.groundAltM ?? null,
+      input.notes ?? null, input.rxImage ?? null, input.groundAltM ?? null, q.subsidy,
     );
     run('UPDATE orders SET code = ? WHERE id = ?', `MD-${1000 + id}`, id);
     for (const l of q.lines) {
@@ -147,6 +153,7 @@ export function createOrder(userId: number, input: CreateOrderInput): number {
       run('UPDATE products SET stock = stock - ? WHERE id = ?', l.qty, l.productId);
     }
     addEvent(id, 'placed', `Order placed (${input.priority} priority)`);
+    if (q.subsidy) addEvent(id, 'subsidy', `Welfare subsidy applied: ₹${q.subsidy} off + free delivery`);
     if (autoApprove) addEvent(id, 'approved', 'Emergency order auto-approved. Preparing for dispatch');
     return id;
   });

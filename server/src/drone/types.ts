@@ -2,6 +2,7 @@
 // The rest of the backend only ever talks to `DroneAdapter`, never to MAVLink or the simulator directly.
 import type { EventEmitter } from 'node:events';
 import type { LatLon } from '../lib/geo';
+import type { BuiltMission } from './mission';
 
 export type MissionPhase =
   | 'idle'
@@ -73,6 +74,7 @@ export interface MissionPlan {
   targetGroundAltM: number | null; // drop-surface height from the 3D map (same datum as the hub's), null if unknown
   cruiseAltM: number;
   dropAltM: number;
+  mission?: BuiltMission; // the ArduCopter AUTO mission for real drones (bridge uploads it)
 }
 
 export type DroneCommand =

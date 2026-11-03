@@ -31,6 +31,18 @@ export const config = {
     cruiseSpeedMs: 12,
   },
 
+  // Real-drone mission settings (see docs/08-ardupilot-auto-missions.md).
+  mission: {
+    payloadMode: (process.env.PAYLOAD_MODE === 'ardupilot-winch' ? 'ardupilot-winch' : 'esp32') as 'esp32' | 'ardupilot-winch',
+    triggerServo: 9, // FC output wired to the ESP32's PWM input
+    pwmDrop: 1900, // ESP32: run lower → release → retract
+    pwmIdle: 1500,
+    pwmAbort: 1100, // ESP32: stop and reel the rope in now
+    lowerRateMs: 0.25,
+    retractRateMs: 0.35,
+    clearanceTimeoutS: 180, // no "area clear" in this time → bridge sends the drone home
+  },
+
   // Simulator time multiplier: 1 = real time, 4 = four times faster (good for demos).
   simSpeed: Number(process.env.SIM_SPEED ?? 4),
 

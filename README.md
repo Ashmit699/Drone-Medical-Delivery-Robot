@@ -16,6 +16,7 @@ the base-station operator approve, launch, monitor and abort it.
 | 5 | [Build roadmap](docs/05-build-roadmap.md) | Phases, week-by-week plan, team roles, test & safety plan, open questions |
 | 6 | [App plan](docs/06-app-plan.md) | Exhibition app: tech stack, pages, domain rules, drone integration seam, 5-day plan |
 | 7 | [3D map plan](docs/07-3d-map-plan.md) | Next step: 3D drop picker, route preview, live cost (SkyFi/Vantor reference) |
+| 8 | [ArduPilot auto-missions](docs/08-ardupilot-auto-missions.md) | How app orders become ArduCopter AUTO missions: MAVLink vs Mission Planner, bridge, parameters, testing |
 
 ## Run the app
 

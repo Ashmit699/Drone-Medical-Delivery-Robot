@@ -3,6 +3,7 @@
 import { config, type Priority } from './config';
 import { addEvent, all, one, run, tx } from './db';
 import { drones } from './drone/manager';
+import { buildMission } from './drone/mission';
 import { PHASE_LABELS, type MissionPlan, type PhaseEvent } from './drone/types';
 import { HttpError } from './lib/auth';
 import { distanceM } from './lib/geo';
@@ -274,6 +275,7 @@ export async function dispatchOrder(orderId: number, droneId: string) {
     cruiseAltM: config.flight.cruiseAltM,
     dropAltM: config.flight.dropAltM,
   };
+  plan.mission = buildMission(plan);
   run('UPDATE missions SET plan_json = ? WHERE id = ?', JSON.stringify(plan), missionId);
 
   try {

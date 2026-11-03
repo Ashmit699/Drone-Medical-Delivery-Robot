@@ -6,7 +6,7 @@ import type { MissionPhase } from '../lib/types';
 
 const HARDWARE = [
   ['Flight controller', 'Radiolink CrossFlight v1.1 running ArduCopter'],
-  ['GPS + compass', 'Radiolink PS100'],
+  ['GPS + compass', 'Radiolink TS100 on a mast'],
   ['Motors', '4 × Readytosky RS2312 920 KV'],
   ['ESCs', '4 × Readytosky 40 A'],
   ['Frame / power', 'S500 frame · CrossFlight power distribution board · 4S LiPo'],

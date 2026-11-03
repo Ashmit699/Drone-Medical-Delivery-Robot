@@ -73,7 +73,7 @@ Swapping to a Pi Zero 2 W and a cheaper camera brings this down by about ₹5,00
 
 ## 5.7 Open questions (answer these before we start buying)
 
-1. What exactly is the **Radiolink PS100**? (GPS/compass or something else?)
+1. ~~What is the Radiolink PS100?~~ Answered: it's a **TS100 GPS + compass** (seen in the build photos).
 2. Which **frame, props and battery** (S count, mAh) are we using?
 3. Do we have an **RC transmitter + receiver**? Which model?
 4. SiK telemetry **frequency** (433 or 915 MHz)?

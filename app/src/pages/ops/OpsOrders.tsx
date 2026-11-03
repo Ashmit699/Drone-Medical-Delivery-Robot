@@ -1,4 +1,4 @@
-import { Check, CheckCircle2, CircleX, ExternalLink, FileImage, Hand, Inbox, MapPin, Phone, Plane, Rocket, X, XCircle } from 'lucide-react';
+import { Check, CheckCircle2, CircleX, Download, ExternalLink, FileImage, Hand, Inbox, MapPin, Phone, Plane, Route, Rocket, X, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Journey } from '../../components/Journey';
@@ -11,6 +11,53 @@ import type { Drone, OrderDetail, OrderSummary } from '../../lib/types';
 import { useConditions } from '../../lib/live';
 import { useFleet } from '../../lib/useFleet';
 import { useLiveOrder } from '../../lib/useLiveOrder';
+import { useAuth } from '../../store/auth';
+
+interface MissionItem {
+  seq: number;
+  command: number;
+  params: number[];
+  alt: number;
+  label: string;
+  phase?: string;
+}
+
+/** The exact ArduCopter AUTO mission the real drone flies for this order, plus a Mission Planner file. */
+function FlightPlan({ order }: { order: OrderDetail }) {
+  const { data } = useApi<{ items: MissionItem[]; payloadMode: string; clearanceSeq: number }>(`/ops/orders/${order.id}/mission`);
+  const token = useAuth((s) => s.token);
+  const download = async () => {
+    const res = await fetch(`/api/ops/orders/${order.id}/mission.waypoints`, { headers: { authorization: `Bearer ${token}` } });
+    const url = URL.createObjectURL(await res.blob());
+    const a = Object.assign(document.createElement('a'), { href: url, download: `${order.code}.waypoints` });
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  if (!data) return null;
+  return (
+    <section>
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <Route className="h-3.5 w-3.5" /> ArduPilot flight plan · {data.items.length} items · {data.payloadMode}
+        </div>
+        <button className="btn-secondary px-2.5 py-1 text-xs" onClick={download}>
+          <Download className="h-3.5 w-3.5" /> .waypoints
+        </button>
+      </div>
+      <ol className="divide-y divide-white/5 rounded-xl border border-line font-mono text-[11px]">
+        {data.items.map((it) => (
+          <li key={it.seq} className={cx('flex items-center gap-2 px-3 py-1.5', it.seq === data.clearanceSeq && 'bg-amber-500/10')}>
+            <span className="w-4 text-slate-600">{it.seq}</span>
+            <span className="w-11 text-brand-300">{it.command}</span>
+            <span className="flex-1 font-sans text-xs text-slate-300">{it.label}</span>
+            {it.phase && <span className="rounded bg-white/[0.06] px-1.5 text-[10px] text-slate-400">{it.phase}</span>}
+          </li>
+        ))}
+      </ol>
+      <p className="mt-1.5 text-[11px] text-slate-500">Open in Mission Planner: Plan → Load WP File. The drone bridge uploads the same items automatically on dispatch.</p>
+    </section>
+  );
+}
 
 const TABS = [
   { key: '', label: 'All' },
@@ -269,6 +316,8 @@ function OrderDrawer({ id, onClose }: { id: number; onClose: () => void }) {
                   </li>
                 </ul>
               </section>
+
+              {['approved', 'in_flight'].includes(order.status) && <FlightPlan order={order} />}
 
               <section>
                 <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Progress</div>

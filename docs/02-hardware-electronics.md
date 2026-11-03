@@ -5,7 +5,7 @@
 | Part | What it does | Notes / to confirm |
 |------|--------------|--------------------|
 | **Radiolink CrossFlight v1.1** | Flight controller | Runs ArduPilot-based firmware and is configured with Mission Planner. **Confirm** the firmware version and which serial ports (TELEM1/TELEM2/GPS/etc.) are free. We need 3 UARTs: SiK radio, Raspberry Pi, rangefinder (or put the rangefinder on I2C). |
-| **Radiolink PS100** | ? | **Confirm what this is.** If it is *not* a GPS + compass module, we must buy one (Radiolink TS100 or any u-blox M8N/M10 GPS+compass). GPS is mandatory for autonomous flight. |
+| **Radiolink TS100** (listed earlier as "PS100"; the photo shows TS100) | GPS + compass on a mast | Confirmed from the build photos. Keep it on its mast, away from the power board and ESC wires. |
 | **4× Readytosky 40A ESC** | Motor speed control | Check they're BLHeli_S/32 and 2–4S rated. Calibrate all four together. |
 | **4× Readytosky RS2312 920KV** (listed as "2313") | Motors | Designed for 3S–4S with 9–10" props. Roughly 0.8–1 kg thrust each on 4S with 1045 props, so about 3.2–4 kg total. |
 | **CrossFlight power distribution board** | Splits battery power to the ESCs, gives voltage/current to the FC | We'll also tap accessory power (BECs) from here. |
@@ -13,8 +13,8 @@
 
 ### Not listed, but required (confirm whether you have them)
 
-- **Frame:** probably F450/S500 class for these motors. Note the motor-to-motor size.
-- **Propellers:** 1045 (10×4.5) recommended, plus spares.
+- **Frame:** S500 (confirmed from photos).
+- **Propellers:** ~9.4″ self-tightening props are fitted. Buy spares of the same type.
 - **Battery:** 4S LiPo, 3300–5000 mAh, with an XT60 connector.
 - **RC transmitter + receiver:** for example Radiolink AT9S / T8FB. **Mandatory**, because a safety pilot must be able to take over on every flight.
 - **LiPo balance charger**.
@@ -31,7 +31,6 @@ Prices are rough Indian market ranges for budgeting only. Check them before orde
 | microSD | 32 GB, A1/A2 class | OS + logs | 400–600 |
 | Camera | Raspberry Pi Camera Module 3 (or v2); wide-angle preferred | Sees the ArUco marker from 3–8 m | 2,000–3,000 |
 | Downward rangefinder | **Benewake TF-Luna** (0.2–8 m) | True height above ground, for precise descent and rope length | 1,800–2,500 |
-| GPS + compass *(only if PS100 isn't one)* | Radiolink TS100 / u-blox M8N or M10 module | Navigation | 1,500–3,000 |
 
 ### Payload system (winch + gripper)
 

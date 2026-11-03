@@ -17,6 +17,7 @@ the base-station operator approve, launch, monitor and abort it.
 | 6 | [App plan](docs/06-app-plan.md) | Exhibition app: tech stack, pages, domain rules, drone integration seam, 5-day plan |
 | 7 | [3D map plan](docs/07-3d-map-plan.md) | Next step: 3D drop picker, route preview, live cost (SkyFi/Vantor reference) |
 | 8 | [ArduPilot auto-missions](docs/08-ardupilot-auto-missions.md) | How app orders become ArduCopter AUTO missions: MAVLink vs Mission Planner, bridge, parameters, testing |
+| 9 | [Testing plan](docs/09-testing-plan.md) | Step-by-step: app → pretend drone → ArduPilot simulator → bench (props off) → winch → real flights |
 
 ## Run the app
 

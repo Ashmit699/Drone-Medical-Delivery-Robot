@@ -92,13 +92,30 @@ async function sampleHeights(viewer: Viewer, source: Source, points: LatLon[]): 
   return sampled.map((c) => (c?.height != null && Number.isFinite(c.height) ? c.height : null));
 }
 
-const DRONE_ICON =
-  'data:image/svg+xml;utf8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 44 44"><g stroke="#4f46e5" stroke-width="2.5"><path d="M13 13l18 18M31 13L13 31"/></g>${[13, 31]
-      .flatMap((x) => [13, 31].map((y) => `<circle cx="${x}" cy="${y}" r="5.5" fill="#fff" stroke="#4f46e5" stroke-width="2"/>`))
-      .join('')}<rect x="17" y="17" width="10" height="10" rx="3" fill="#4f46e5"/></svg>`,
-  );
+// Drawn on a canvas: Chromium can't decode SVG data URLs through createImageBitmap, which Cesium uses.
+function droneIcon(): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = c.height = 48;
+  const g = c.getContext('2d')!;
+  g.strokeStyle = g.fillStyle = '#4f46e5';
+  g.lineWidth = 3;
+  g.beginPath();
+  g.moveTo(14, 14);
+  g.lineTo(34, 34);
+  g.moveTo(34, 14);
+  g.lineTo(14, 34);
+  g.stroke();
+  for (const [x, y] of [[14, 14], [34, 14], [14, 34], [34, 34]]) {
+    g.beginPath();
+    g.arc(x, y, 6, 0, Math.PI * 2);
+    g.fillStyle = '#fff';
+    g.fill();
+    g.stroke();
+  }
+  g.fillStyle = '#4f46e5';
+  g.fillRect(19, 19, 10, 10);
+  return c;
+}
 
 export default function Map3D({
   config,
@@ -176,7 +193,7 @@ export default function Map3D({
     };
     viewer.entities.add({
       position: new CallbackPositionProperty(dronePos, false),
-      billboard: { image: DRONE_ICON, scale: 0.9, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+      billboard: { image: droneIcon(), scale: 0.9, disableDepthTestDistance: Number.POSITIVE_INFINITY },
       label: {
         text: new CallbackProperty(() => (droneState.current.t ? `${droneState.current.t.droneId} · ${droneState.current.t.altM.toFixed(0)} m` : ''), false),
         font: '600 13px Inter, sans-serif',

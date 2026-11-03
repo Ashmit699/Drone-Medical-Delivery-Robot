@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 
 // Central settings. Change HUB to your school / base-station location before the exhibition.
 export const config = {
-  port: Number(process.env.PORT ?? 4000),
+  port: Number(process.env.API_PORT ?? 4000),
   jwtSecret: process.env.JWT_SECRET ?? 'medidrop-dev-secret-change-me',
   dbPath: process.env.DB_PATH ?? fileURLToPath(new URL('../data/medidrop.db', import.meta.url)),
 

@@ -201,9 +201,9 @@ export default function MissionControl() {
   const ropePct = t ? Math.min(100, (t.payload.ropeM / config.flight.dropAltM) * 100) : 0;
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-void text-slate-200">
+    <div className="flex min-h-screen flex-col bg-void text-slate-200 2xl:h-screen 2xl:overflow-hidden">
       {/* ---------- header ---------- */}
-      <header className="flex items-center gap-4 border-b border-white/[0.06] bg-ink/70 px-6 py-3 backdrop-blur">
+      <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-white/[0.06] bg-ink/70 px-4 py-3 backdrop-blur sm:px-6">
         <Link to="/" className="flex items-center gap-3">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-violet-500 font-bold text-slate-950">+</span>
           <span className="font-[family-name:var(--font-display)] text-xl font-bold text-white">
@@ -215,7 +215,7 @@ export default function MissionControl() {
           <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" /> LIVE
         </span>
         <ConditionsPill c={conditions} />
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           {Object.values(fleet).map((d) => (
             <span
               key={d.id}
@@ -233,9 +233,10 @@ export default function MissionControl() {
       </header>
 
       {/* ---------- body ---------- */}
-      <div className="grid min-h-0 flex-1 grid-cols-[360px_1fr_430px] gap-4 p-4">
+      {/* TV (2xl+): feed | map | details. Narrower windows (split screen): map first, then details and feed, scrolling. */}
+      <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-2 2xl:min-h-0 2xl:flex-1 2xl:grid-cols-[360px_1fr_430px]">
         {/* Order feed */}
-        <section className="card flex min-h-0 flex-col p-4">
+        <section className="card order-3 flex max-h-[480px] min-h-0 flex-col p-4 2xl:order-none 2xl:max-h-none">
           <div className="mb-3 flex items-center justify-between">
             <div className="hud text-brand-400">Incoming orders</div>
             <span className="font-mono text-xs text-slate-500">{state.orders.length} recent</span>
@@ -268,7 +269,7 @@ export default function MissionControl() {
         </section>
 
         {/* Map */}
-        <section className="card relative min-h-0 overflow-hidden">
+        <section className="card relative order-1 h-[60vh] min-h-[380px] overflow-hidden lg:col-span-2 2xl:order-none 2xl:col-span-1 2xl:h-auto 2xl:min-h-0">
           <LiveMap
             hub={config.hub}
             targets={active && ['approved', 'in_flight'].includes(active.status) ? [{ lat: active.lat, lon: active.lon }] : []}
@@ -288,14 +289,14 @@ export default function MissionControl() {
             </div>
           )}
           {waiting && (
-            <div className="absolute inset-x-0 top-24 z-[400] mx-auto w-fit animate-glow rounded-2xl border-2 border-amber-400 bg-amber-500/20 px-6 py-3 text-center backdrop-blur">
-              <div className="font-[family-name:var(--font-display)] text-2xl font-bold text-amber-200">HOVERING · WAITING FOR “AREA CLEAR”</div>
+            <div className="absolute inset-x-4 top-28 z-[400] mx-auto max-w-xl animate-glow rounded-2xl border-2 border-amber-400 bg-amber-500/20 px-6 py-3 text-center backdrop-blur">
+              <div className="font-[family-name:var(--font-display)] text-lg font-bold text-amber-200 sm:text-2xl">HOVERING · WAITING FOR “AREA CLEAR”</div>
               <div className="text-sm text-amber-100/80">A person at the drop zone must confirm before the package is lowered</div>
             </div>
           )}
           {/* journey bar */}
           <div className="absolute inset-x-4 bottom-4 z-[400] rounded-2xl border border-white/10 bg-ink/85 p-3 backdrop-blur-xl">
-            <div className="grid grid-cols-9 gap-1.5">
+            <div className="grid grid-cols-9 gap-1">
               {JOURNEY.map((j, i) => (
                 <div key={j.label} className="text-center">
                   <div
@@ -304,7 +305,7 @@ export default function MissionControl() {
                       i < journeyIdx || (i === journeyIdx && phase === 'completed') ? 'bg-brand-400' : i === journeyIdx ? (waiting ? 'animate-pulse bg-amber-400' : 'animate-pulse bg-violet-400') : 'bg-white/10',
                     )}
                   />
-                  <div className={cx('mt-1.5 font-mono text-[11px]', i === journeyIdx ? 'font-semibold text-white' : 'text-slate-500')}>{j.label}</div>
+                  <div className={cx('mt-1.5 hidden font-mono text-[11px] sm:block', i === journeyIdx ? 'font-semibold text-white' : 'text-slate-500')}>{j.label}</div>
                 </div>
               ))}
             </div>
@@ -312,7 +313,7 @@ export default function MissionControl() {
         </section>
 
         {/* Right: chase-cam, telemetry, ArduPilot mission */}
-        <section className="flex min-h-0 flex-col gap-4">
+        <section className="order-2 flex min-h-0 flex-col gap-4 2xl:order-none">
           <div className="card relative h-56 shrink-0 overflow-hidden">
             <Suspense fallback={<div className="grid h-full place-items-center"><Spinner /></div>}>
               {t && <Map3D config={config} target={active && flying ? { lat: active.lat, lon: active.lon } : null} drone={t} chase className="h-56 w-full" />}
@@ -348,14 +349,14 @@ export default function MissionControl() {
             </div>
           </div>
 
-          <div className="card flex min-h-0 flex-1 flex-col p-4">
+          <div className="card flex min-h-0 flex-col p-4 2xl:flex-1">
             <div className="mb-2 flex items-center justify-between">
               <div className="hud flex items-center gap-1.5 text-violet-300">
                 <Route className="h-3 w-3" /> ArduPilot mission
               </div>
               <span className="font-mono text-[11px] text-slate-500">{items.length ? `${items.length} items · AUTO` : 'no mission yet'}</span>
             </div>
-            <ol className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+            <ol className="min-h-0 space-y-1 overflow-y-auto 2xl:flex-1">
               {items.map((it) => (
                 <li
                   key={it.seq}
@@ -378,8 +379,8 @@ export default function MissionControl() {
       </div>
 
       {/* ---------- flight log ticker ---------- */}
-      <footer className="flex h-24 shrink-0 gap-4 border-t border-white/[0.06] bg-ink/70 px-6 py-3">
-        <div className="hud flex w-36 shrink-0 items-start gap-1.5 pt-1 text-brand-400">
+      <footer className="flex h-24 shrink-0 gap-4 border-t border-white/[0.06] bg-ink/70 px-4 py-3 sm:px-6">
+        <div className="hud hidden w-36 shrink-0 items-start gap-1.5 pt-1 text-brand-400 sm:flex">
           <Radio className="h-3 w-3" /> Flight log
         </div>
         <ul className="min-w-0 flex-1 space-y-0.5 overflow-hidden font-mono text-xs">
@@ -400,7 +401,7 @@ export default function MissionControl() {
 
       {/* ---------- new-order banner ---------- */}
       {banner && (
-        <div className="pointer-events-none fixed inset-x-0 top-20 z-50 mx-auto w-fit animate-fade-up">
+        <div className="pointer-events-none fixed inset-x-4 top-20 z-50 mx-auto w-fit max-w-[calc(100%-2rem)] animate-fade-up">
           <div
             className={cx(
               'flex items-center gap-4 rounded-2xl border-2 px-8 py-4 shadow-2xl backdrop-blur-xl',
@@ -410,7 +411,7 @@ export default function MissionControl() {
             {banner.priority === 'emergency' ? <Siren className="h-10 w-10 text-rose-200" /> : <span className="h-4 w-4 animate-ping rounded-full bg-brand-300" />}
             <div>
               <div className="hud text-white/70">New order received</div>
-              <div className="font-[family-name:var(--font-display)] text-3xl font-bold text-white">
+              <div className="font-[family-name:var(--font-display)] text-xl font-bold text-white sm:text-3xl">
                 {banner.code} · {PRIORITY_META[banner.priority].label}
               </div>
               <div className="text-sm text-white/80">

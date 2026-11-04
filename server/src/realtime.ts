@@ -1,11 +1,13 @@
 // Socket.IO: pushes live drone telemetry and order updates to the browser.
-// Rooms: 'ops' (all operators) and 'order:<id>' (whoever is tracking that order).
+// Rooms: 'ops' (all operators), 'order:<id>' (whoever is tracking that order) and
+// 'display' (the anonymised Mission Control screen).
 import type { Server as HttpServer } from 'node:http';
 import { Server } from 'socket.io';
 import { one } from './db';
 import { drones } from './drone/manager';
 import type { DroneTelemetry } from './drone/types';
 import { verifyToken } from './lib/auth';
+import { displayOrder } from './display';
 import { getOrderDetail } from './orders';
 
 let io: Server | null = null;
@@ -45,10 +47,11 @@ export function initRealtime(server: HttpServer) {
     });
 
     socket.on('untrack', (orderId: number) => socket.leave(`order:${orderId}`));
+    socket.on('display', () => socket.join('display'));
   });
 
   drones.on('telemetry', (t: DroneTelemetry) => {
-    io!.to('ops').emit('telemetry', t);
+    io!.to('ops').to('display').emit('telemetry', t);
     const orderId = orderForMission(t.missionId);
     if (orderId) io!.to(`order:${orderId}`).emit('telemetry', t);
   });
@@ -60,6 +63,7 @@ export function emitOrderUpdate(orderId: number) {
   const detail = getOrderDetail(orderId);
   if (!detail) return;
   io.to(`order:${orderId}`).to(`user:${detail.user_id}`).to('ops').emit('order:update', detail);
+  io.to('display').emit('display:order', displayOrder(detail));
 }
 
 /** Push an event to one user's open tabs (e.g. welfare verified). */

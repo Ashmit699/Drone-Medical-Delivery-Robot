@@ -414,6 +414,7 @@ function Footer() {
           <ul className="space-y-2 text-sm text-slate-400">
             <li><Link to="/shop" className="hover:text-white">Supply catalogue</Link></li>
             <li><Link to="/live" className="hover:text-white">Live airspace</Link></li>
+            <li><Link to="/mission-control" className="hover:text-white">Mission control screen</Link></li>
             <li><Link to="/welfare" className="hover:text-white">Welfare subsidy</Link></li>
             <li><Link to="/technology" className="hover:text-white">How the drone works</Link></li>
           </ul>
@@ -491,6 +492,9 @@ export function OpsLayout() {
           ))}
         </nav>
         <div className="mt-auto space-y-1 border-t border-white/[0.06] pt-4">
+          <Link to="/mission-control" target="_blank" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-brand-300 hover:text-white">
+            <Radar className="h-4.5 w-4.5" /> Mission control screen
+          </Link>
           <Link to="/" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-400 hover:text-white">
             <ShoppingBag className="h-4.5 w-4.5" /> Customer site
           </Link>

@@ -6,7 +6,8 @@ import { drones, type AdapterKind } from '../drone/manager';
 import { HttpError, requireOperator } from '../lib/auth';
 import { emitToUser } from '../realtime';
 import { WELFARE_DISCOUNT, WELFARE_LABEL, type WelfareRow } from '../welfare';
-import { buildMission, toWaypointsFile } from '../drone/mission';
+import { missionForOrder } from '../display';
+import { toWaypointsFile } from '../drone/mission';
 import { config } from '../config';
 import { approveOrder, dispatchOrder, getOrderDetail, getOrderRow, listOrders, rejectOrder } from '../orders';
 
@@ -180,21 +181,8 @@ opsRoutes.post('/welfare/:id/:action', (req, res) => {
 
 // ---------- Flight plan (ArduCopter mission) ----------
 
-function missionFor(orderId: number) {
-  const o = getOrderRow(orderId);
-  return buildMission({
-    missionId: o.mission_id ?? 0,
-    orderId,
-    home: config.hub,
-    target: { lat: o.lat, lon: o.lon },
-    targetGroundAltM: o.ground_alt_m,
-    cruiseAltM: config.flight.cruiseAltM,
-    dropAltM: config.flight.dropAltM,
-  });
-}
-
 opsRoutes.get('/orders/:id/mission', (req, res) => {
-  res.json(missionFor(idParam(req.params.id)));
+  res.json(missionForOrder(idParam(req.params.id)));
 });
 
 // Mission Planner: Flight Plan → Load WP File (or QGroundControl: Plan → Open).
@@ -203,5 +191,5 @@ opsRoutes.get('/orders/:id/mission.waypoints', (req, res) => {
   const o = getOrderRow(id);
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Content-Disposition', `attachment; filename="${o.code}.waypoints"`);
-  res.send(toWaypointsFile(missionFor(id)));
+  res.send(toWaypointsFile(missionForOrder(id)));
 });

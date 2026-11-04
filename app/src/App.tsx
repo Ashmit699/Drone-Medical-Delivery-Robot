@@ -19,6 +19,7 @@ import Track from './pages/Track';
 import Welfare from './pages/Welfare';
 
 const Live = lazy(() => import('./pages/Live'));
+const MissionControl = lazy(() => import('./pages/MissionControl'));
 
 // Operator console is loaded on demand so customers' phones download less.
 const Dashboard = lazy(() => import('./pages/ops/Dashboard'));
@@ -73,6 +74,8 @@ export default function App() {
           <Route path="profile" element={<RequireAuth><Profile /></RequireAuth>} />
           <Route path="*" element={<NotFound />} />
         </Route>
+        {/* Full-screen exhibition display, no site navigation. */}
+        <Route path="mission-control" element={<MissionControl />} />
         <Route path="ops" element={<RequireAuth role="operator"><OpsLayout /></RequireAuth>}>
           <Route index element={<Dashboard />} />
           <Route path="orders" element={<OpsOrders />} />

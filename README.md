@@ -18,6 +18,7 @@ the base-station operator approve, launch, monitor and abort it.
 | 7 | [3D map plan](docs/07-3d-map-plan.md) | Next step: 3D drop picker, route preview, live cost (SkyFi/Vantor reference) |
 | 8 | [ArduPilot auto-missions](docs/08-ardupilot-auto-missions.md) | How app orders become ArduCopter AUTO missions: MAVLink vs Mission Planner, bridge, parameters, testing |
 | 9 | [Testing plan](docs/09-testing-plan.md) | Step-by-step: app → pretend drone → ArduPilot simulator → bench (props off) → winch → real flights |
+| 10 | [Real ArduPilot (SITL on Windows)](docs/10-sitl-windows-setup.md) | Connect Mission Planner's simulator to the app; demo on the Mission Control screen |
 
 ## Run the app
 

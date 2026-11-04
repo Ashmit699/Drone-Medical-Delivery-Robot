@@ -7,6 +7,7 @@ import { all, one, run } from '../db';
 import { HttpError, requireAuth, signToken, type AuthUser, type Role } from '../lib/auth';
 import { offsetM } from '../lib/geo';
 import { drones } from '../drone/manager';
+import { displayState } from '../display';
 import { getConditions } from '../weather';
 
 export const publicRoutes = Router();
@@ -115,12 +116,13 @@ publicRoutes.get('/public/stats', (_req, res) => {
 });
 
 publicRoutes.get('/public/fleet', (_req, res) => {
-  const names = Object.fromEntries(all<{ id: string; name: string; status: string }>('SELECT id, name, status FROM drones').map((d) => [d.id, d]));
+  const names = Object.fromEntries(all<{ id: string; name: string; status: string; adapter: string }>('SELECT id, name, status, adapter FROM drones').map((d) => [d.id, d]));
   res.json(
     drones.allTelemetry().map((t) => ({
       id: t.droneId,
       name: names[t.droneId]?.name,
       status: names[t.droneId]?.status,
+      adapter: names[t.droneId]?.adapter, // 'sim' or 'bridge' (ArduPilot over MAVLink)
       connected: t.connected,
       armed: t.armed,
       phase: t.phase,
@@ -135,4 +137,9 @@ publicRoutes.get('/public/fleet', (_req, res) => {
       markerErrorCm: t.markerErrorCm,
     })),
   );
+});
+
+// Mission Control screen: recent orders (anonymised) and the ArduPilot mission of active ones.
+publicRoutes.get('/display/state', (_req, res) => {
+  res.json(displayState());
 });

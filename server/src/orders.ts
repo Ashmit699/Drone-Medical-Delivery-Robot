@@ -182,8 +182,11 @@ export function getOrderDetail(id: number) {
   return {
     ...rest,
     has_rx: !!rx_image,
-    items: all('SELECT product_id, name, price, qty, weight_g FROM order_items WHERE order_id = ?', id),
-    events: all('SELECT id, type, message, created_at FROM events WHERE order_id = ? ORDER BY id', id),
+    items: all<{ product_id: number; name: string; price: number; qty: number; weight_g: number }>(
+      'SELECT product_id, name, price, qty, weight_g FROM order_items WHERE order_id = ?',
+      id,
+    ),
+    events: all<{ id: number; type: string; message: string; created_at: string }>('SELECT id, type, message, created_at FROM events WHERE order_id = ? ORDER BY id', id),
   };
 }
 

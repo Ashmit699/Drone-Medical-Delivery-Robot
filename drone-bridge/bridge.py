@@ -405,6 +405,7 @@ async def main():
         time.sleep(2)
         s = v.state
         print(f"Mode {s['mode']} | armed {s['armed']} | GPS fix {s['fix']} with {s['sats']} sats | battery {s['batteryV']:.2f} V")
+        print(f"Position {s['lat']:.6f}, {s['lon']:.6f}  (use as HUB_LAT / HUB_LON for the app when testing with SITL)")
         return
 
     bridge = Bridge(v, args.drone)

@@ -64,7 +64,7 @@ export default function Live() {
             ['Online', fleet.filter((x) => x.connected).length],
             ['Service zone', `${config.serviceRadiusKm} km`],
           ].map(([k, v]) => (
-            <div key={k} className="rounded-2xl border border-line bg-white/[0.04] px-4 py-2.5 text-center backdrop-blur">
+            <div key={k} className="rounded-2xl border border-line bg-panel shadow-[0_1px_3px_rgba(9,36,62,0.07),0_12px_32px_-14px_rgba(9,36,62,0.22)] px-4 py-2.5 text-center">
               <div className="hud">{k}</div>
               <div className="font-mono text-lg font-semibold text-white">{v}</div>
             </div>
@@ -83,7 +83,7 @@ export default function Live() {
                 onClick={() => setSelected(x.id)}
                 className={cx(
                   'flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-mono text-[11px] font-semibold backdrop-blur',
-                  x.id === d.id ? 'border-brand-400/60 bg-brand-400/15 text-brand-200' : 'border-white/10 bg-ink/70 text-slate-400',
+                  x.id === d.id ? 'border-brand-400 bg-brand-400 text-navy' : 'border-white/10 bg-ink/70 text-slate-400',
                 )}
               >
                 <span className={cx('h-1.5 w-1.5 rounded-full', x.armed ? 'animate-pulse bg-emerald-400' : 'bg-slate-500')} />

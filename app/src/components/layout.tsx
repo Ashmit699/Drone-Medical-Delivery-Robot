@@ -33,7 +33,7 @@ export function Logo({ compact }: { compact?: boolean }) {
   return (
     <Link to="/" className="group flex items-center gap-2.5">
       <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-violet-500">
-        <svg viewBox="0 0 24 24" className="h-5 w-5 text-slate-950" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round">
+        <svg viewBox="0 0 24 24" className="h-5 w-5 text-navy" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round">
           <path d="M12 6v12M6 12h12" />
         </svg>
       </span>
@@ -128,13 +128,13 @@ function Navbar() {
           <button onClick={() => setCartOpen(true)} className="relative grid h-10 w-10 place-items-center rounded-xl text-slate-400 hover:bg-white/[0.06] hover:text-white" aria-label="Open cart">
             <ShoppingBag className="h-5 w-5" />
             {count > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-400 px-1 text-[11px] font-bold text-slate-950">{count}</span>
+              <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-400 px-1 text-[11px] font-bold text-navy">{count}</span>
             )}
           </button>
           {user ? (
             <div className="hidden items-center md:flex">
               <Link to="/profile" className="btn-ghost h-10 px-3">
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-brand-400 to-violet-500 text-[11px] font-bold text-slate-950">{user.name[0]}</span>
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-brand-400 to-violet-500 text-[11px] font-bold text-navy">{user.name[0]}</span>
                 {user.name.split(' ')[0]}
               </Link>
               <button
@@ -380,7 +380,7 @@ function SosButton() {
   return (
     <button
       onClick={() => setSosOpen(true)}
-      className="fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full bg-rose-500 px-4 py-3 text-sm font-bold text-slate-950 transition hover:scale-105"
+      className="fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full bg-rose-500 px-4 py-3 text-sm font-bold text-navy transition hover:scale-105"
       aria-label="Emergency SOS"
     >
       <span className="relative flex h-2.5 w-2.5">

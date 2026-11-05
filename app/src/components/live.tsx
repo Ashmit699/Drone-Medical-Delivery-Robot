@@ -114,19 +114,19 @@ export function Radar({ hub, radiusKm, drones, className }: { hub: LatLon; radiu
           <circle key={f} r={R * f} fill="none" stroke="#00c2c7" strokeOpacity=".14" />
         ))}
         {/* service area */}
-        <circle r={(radiusKm * 1000 * R) / rangeM} fill="none" stroke="#82a8c4" strokeOpacity=".7" strokeDasharray="4 5" />
+        <circle r={(radiusKm * 1000 * R) / rangeM} fill="none" stroke="#1e4059" strokeOpacity=".5" strokeDasharray="4 5" />
         <line x1={-R} x2={R} y1="0" y2="0" stroke="#00c2c7" strokeOpacity=".12" />
         <line y1={-R} y2={R} x1="0" x2="0" stroke="#00c2c7" strokeOpacity=".12" />
-        <text x="4" y={-R + 12} fill="#00c2c7" fillOpacity=".6" fontSize="8" fontFamily="JetBrains Mono, monospace">
+        <text x="4" y={-R + 12} fill="#00858a" fillOpacity=".8" fontSize="8" fontFamily="JetBrains Mono, monospace">
           N
         </text>
-        <text x={(radiusKm * 1000 * R) / rangeM + 3} y="-3" fill="#b9f0ec" fillOpacity=".8" fontSize="7" fontFamily="JetBrains Mono, monospace">
+        <text x={(radiusKm * 1000 * R) / rangeM + 3} y="-3" fill="#1e4059" fillOpacity=".8" fontSize="7" fontFamily="JetBrains Mono, monospace">
           {radiusKm} km
         </text>
         {/* hub */}
         <rect x="-5" y="-5" width="10" height="10" rx="2" fill="#0d2c4a" stroke="#f5f9fc" strokeWidth="1.5" />
         {atBase > 0 && (
-          <text x="9" y="14" fill="#8fa4b7" fontSize="7" fontFamily="JetBrains Mono, monospace">
+          <text x="9" y="14" fill="#4d657b" fontSize="7" fontFamily="JetBrains Mono, monospace">
             {atBase} AT BASE
           </text>
         )}
@@ -144,10 +144,10 @@ export function Radar({ hub, radiusKm, drones, className }: { hub: LatLon; radiu
                 <g transform={`rotate(${d.headingDeg})`}>
                   <path d="M0 -6 L4 4 L0 2 L-4 4 Z" fill="#5fdcdf" />
                 </g>
-                <text x="8" y="-6" fill="#f5f9fc" fontSize="7.5" fontFamily="JetBrains Mono, monospace">
+                <text x="8" y="-6" fill="#09243e" fontSize="7.5" fontFamily="JetBrains Mono, monospace">
                   {d.id} · {Math.round(d.altM)}m
                 </text>
-                <text x="8" y="3" fill="#8fa4b7" fontSize="6.5" fontFamily="JetBrains Mono, monospace">
+                <text x="8" y="3" fill="#4d657b" fontSize="6.5" fontFamily="JetBrains Mono, monospace">
                   {PHASE_LABELS[d.phase].toUpperCase()}
                 </text>
               </g>

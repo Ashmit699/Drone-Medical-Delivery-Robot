@@ -64,7 +64,7 @@ function HeroSearch() {
     navigate(q.trim() ? `/shop?q=${encodeURIComponent(q.trim())}` : '/shop');
   };
   return (
-    <form onSubmit={submit} role="search" className="mt-8 flex max-w-xl items-center gap-2 rounded-2xl border border-line bg-white/[0.04] p-2 backdrop-blur">
+    <form onSubmit={submit} role="search" className="mt-8 flex max-w-xl items-center gap-2 rounded-2xl border border-line bg-panel shadow-[0_1px_3px_rgba(9,36,62,0.07),0_12px_32px_-14px_rgba(9,36,62,0.22)] p-2">
       <Search className="ml-2 h-5 w-5 shrink-0 text-slate-500" />
       <input
         value={q}
@@ -123,7 +123,7 @@ export default function Home() {
           </div>
 
           <div className="relative mx-auto w-full max-w-md">
-            <div className="hud-frame relative rounded-[28px] border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-transparent p-6">
+            <div className="hud-frame relative rounded-[28px] border border-line bg-gradient-to-b from-brand-50 to-panel p-6 shadow-[0_1px_3px_rgba(9,36,62,0.07),0_12px_32px_-14px_rgba(9,36,62,0.22)]">
               <DroneArt className="relative w-full" />
               {[
                 ['TOP SPEED', `${speedKmh} km/h`, 'left-4 top-6'],
@@ -142,7 +142,7 @@ export default function Home() {
 
       {/* ---------------- Trust strip ---------------- */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <dl className="grid grid-cols-2 divide-white/[0.08] rounded-2xl border border-line bg-white/[0.03] sm:grid-cols-4 sm:divide-x">
+        <dl className="grid grid-cols-2 divide-white/[0.08] rounded-2xl border border-line bg-panel shadow-[0_1px_3px_rgba(9,36,62,0.07),0_12px_32px_-14px_rgba(9,36,62,0.22)] sm:grid-cols-4 sm:divide-x">
           {[
             { v: <CountUp value={stats?.delivered} />, l: 'emergencies delivered' },
             { v: <CountUp value={stats?.avgDeliveryMin} decimals={1} suffix=" min" />, l: 'average arrival' },
@@ -234,7 +234,7 @@ export default function Home() {
             </li>
           ))}
         </ol>
-        <div className="mt-6 grid gap-3 rounded-2xl border border-line bg-white/[0.03] p-5 text-sm sm:grid-cols-2">
+        <div className="mt-6 grid gap-3 rounded-2xl border border-line bg-panel shadow-[0_1px_3px_rgba(9,36,62,0.07),0_12px_32px_-14px_rgba(9,36,62,0.22)] p-5 text-sm sm:grid-cols-2">
           <div className="flex items-center gap-3"><span className="w-24 text-slate-400">By road</span><div className="h-2 flex-1 rounded-full bg-slate-600" /><b className="w-16 text-right text-white">25 min</b></div>
           <div className="flex items-center gap-3"><span className="w-24 text-slate-400">By MediDrop</span><div className="h-2 w-[18%] rounded-full bg-gradient-to-r from-brand-400 to-emerald-400" /><span className="flex-1" /><b className="w-16 text-right text-brand-300">~4 min</b></div>
           <p className="text-xs text-slate-500 sm:col-span-2">Typical 2 km trip in city traffic vs a drone flying straight at {speedKmh} km/h.</p>
@@ -254,7 +254,7 @@ export default function Home() {
               </div>
               <div className="grid gap-3 sm:grid-cols-3">
                 {config.plans.map((p) => (
-                  <Link key={p.id} to="/plans" className={cx('rounded-2xl border bg-white/[0.03] p-4 transition hover:border-white/30', p.popular ? 'border-brand-400/50' : 'border-line')}>
+                  <Link key={p.id} to="/plans" className={cx('rounded-2xl border bg-panel shadow-sm p-4 transition hover:border-white/30', p.popular ? 'border-brand-400/50' : 'border-line')}>
                     <div className="text-sm font-semibold text-white">{p.name}</div>
                     <div className="mt-2 font-mono text-2xl font-bold text-white">{rupees(p.priceMonthly)}<span className="text-xs font-normal text-slate-400">/mo</span></div>
                     <div className="mt-2 text-xs text-slate-400">{p.deliveriesPerMonth == null ? 'Unlimited' : p.deliveriesPerMonth} free deliveries · {p.members === 1 ? '1 person' : `up to ${p.members}`}</div>
@@ -285,7 +285,7 @@ export default function Home() {
 
       {/* ---------------- Operations (kept off the main page) ---------------- */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-white/[0.03] p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-panel shadow-[0_1px_3px_rgba(9,36,62,0.07),0_12px_32px_-14px_rgba(9,36,62,0.22)] p-6">
           <div>
             <h2 className="text-lg font-bold text-white">Curious how the network runs?</h2>
             <p className="text-sm text-slate-400">See drones in the air, flight conditions and the live airspace radar.</p>

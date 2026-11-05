@@ -108,7 +108,7 @@ export default function Track() {
       </Link>
 
       {params.get('new') && order.status !== 'delivered' && (
-        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-brand-400 p-4 text-slate-950">
+        <div className="mt-4 flex items-center gap-3 rounded-2xl bg-brand-400 p-4 text-navy">
           <PartyPopper className="h-6 w-6 shrink-0" />
           <div>
             <div className="font-semibold">Order placed!</div>

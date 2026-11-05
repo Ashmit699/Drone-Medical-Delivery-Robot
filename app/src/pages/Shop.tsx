@@ -60,7 +60,7 @@ export default function Shop() {
             onClick={() => update('category', c.name)}
             className={cx(
               'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition',
-              category === c.name ? 'border-brand-400 bg-brand-400 text-slate-950' : 'border-line bg-panel text-slate-300 hover:border-white/20',
+              category === c.name ? 'border-brand-400 bg-brand-400 text-navy' : 'border-line bg-panel text-slate-300 hover:border-white/20',
             )}
           >
             {c.name || 'All'} <span className="opacity-60">{c.count}</span>

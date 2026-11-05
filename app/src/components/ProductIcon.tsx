@@ -41,15 +41,15 @@ const ICONS: Record<string, LucideIcon> = {
 
 // Category tints, kept within the palette: coral is reserved for Emergency.
 export const CATEGORY_TONE: Record<string, { tile: string; glow: string }> = {
-  Emergency: { tile: 'from-rose-500/15 to-transparent text-rose-400', glow: '' },
-  'First Aid': { tile: 'from-emerald-300/10 to-transparent text-emerald-300', glow: '' },
-  Medicines: { tile: 'from-brand-400/15 to-transparent text-brand-400', glow: '' },
-  Diagnostics: { tile: 'from-violet-400/15 to-transparent text-violet-300', glow: '' },
-  'Cold Chain': { tile: 'from-brand-200/10 to-transparent text-brand-200', glow: '' },
-  'Relief & Survival': { tile: 'from-slate-400/15 to-transparent text-slate-300', glow: '' },
-  'Mother & Baby': { tile: 'from-violet-300/10 to-transparent text-violet-200', glow: '' },
+  Emergency: { tile: 'from-rose-500/20 to-panel text-rose-400', glow: '' },
+  'First Aid': { tile: 'from-emerald-300/15 to-panel text-emerald-300', glow: '' },
+  Medicines: { tile: 'from-brand-400/20 to-panel text-brand-400', glow: '' },
+  Diagnostics: { tile: 'from-violet-400/20 to-panel text-violet-300', glow: '' },
+  'Cold Chain': { tile: 'from-brand-200/15 to-panel text-brand-200', glow: '' },
+  'Relief & Survival': { tile: 'from-slate-400/20 to-panel text-slate-300', glow: '' },
+  'Mother & Baby': { tile: 'from-violet-300/15 to-panel text-violet-200', glow: '' },
 };
-const FALLBACK = { tile: 'from-slate-500/20 to-transparent text-slate-300', glow: '' };
+const FALLBACK = { tile: 'from-slate-500/20 to-panel text-slate-300', glow: '' };
 
 export const categoryIcon = (category: string): LucideIcon =>
   ({

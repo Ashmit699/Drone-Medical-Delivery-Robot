@@ -11,8 +11,8 @@ import type { OrderSummary, Stats } from '../../lib/types';
 import { useConditions } from '../../lib/live';
 import { useFleet } from '../../lib/useFleet';
 
-const PIE_COLORS = ['#00c2c7', '#b9f0ec', '#82a8c4', '#5f8bad', '#d6e1ea', '#007a7e', '#355066'];
-const TOOLTIP = { borderRadius: 12, border: '1px solid rgba(181,197,211,0.2)', background: '#0d2c4a', color: '#f5f9fc' };
+const PIE_COLORS = ['#00c2c7', '#09243e', '#5f8bad', '#1e4059', '#82a8c4', '#007a7e', '#b9f0ec'];
+const TOOLTIP = { borderRadius: 12, border: '1px solid rgba(181,197,211,0.2)', background: '#ffffff', color: '#09243e' };
 
 function Kpi({ label, value, icon, tone, sub }: { label: string; value: ReactNode; icon: ReactNode; tone: string; sub?: ReactNode }) {
   return (
@@ -91,12 +91,12 @@ export default function Dashboard() {
           <div className="mt-4 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartDays} barGap={4}>
-                <CartesianGrid vertical={false} stroke="rgba(181,197,211,0.1)" />
+                <CartesianGrid vertical={false} stroke="rgba(9,36,62,0.08)" />
                 <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={12} />
                 <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={12} width={28} />
-                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} contentStyle={TOOLTIP} />
+                <Tooltip cursor={{ fill: 'rgba(9,36,62,0.04)' }} contentStyle={TOOLTIP} />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="orders" name="Orders" fill="#82a8c4" radius={[6, 6, 0, 0]} isAnimationActive={false} />
+                <Bar dataKey="orders" name="Orders" fill="#09243e" radius={[6, 6, 0, 0]} isAnimationActive={false} />
                 <Bar dataKey="delivered" name="Delivered" fill="#00c2c7" radius={[6, 6, 0, 0]} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>

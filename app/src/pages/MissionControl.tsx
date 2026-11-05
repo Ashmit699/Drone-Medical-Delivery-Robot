@@ -205,7 +205,7 @@ export default function MissionControl() {
       {/* ---------- header ---------- */}
       <header className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-white/[0.06] bg-ink/70 px-4 py-3 backdrop-blur sm:px-6">
         <Link to="/" className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-violet-500 font-bold text-slate-950">+</span>
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-violet-500 font-bold text-navy">+</span>
           <span className="font-[family-name:var(--font-display)] text-xl font-bold text-white">
             Medi<span className="glow-text">Drop</span>
           </span>

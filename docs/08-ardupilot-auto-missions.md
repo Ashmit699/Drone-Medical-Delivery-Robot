@@ -41,15 +41,19 @@ Customer app ── order ──► Backend ── approve + dispatch ──► 
 |---|-----------------|--------------|-----------|
 | 0 | `NAV_WAYPOINT` (16) | Home placeholder (ArduPilot replaces it on arming) | |
 | 1 | `NAV_TAKEOFF` (22) | Climb to 60 m (cruise height; clears 40–60 m towers) | takeoff |
-| 2 | `DO_CHANGE_SPEED` (178) | 12 m/s ground speed | |
+| 2 | `DO_CHANGE_SPEED` (178) | 15 m/s ground speed | |
 | 3 | `NAV_WAYPOINT` (16) | Fly to the drop point at 60 m | cruise |
 | 4 | `NAV_WAYPOINT` (16) | Descend to the 4 m hover, hold 2 s | approach |
 | 5 | `NAV_LOITER_UNLIM` (17) | **Hover until "area clear"** | awaiting_clearance |
-| 6 | `DO_SET_SERVO` (183) | SERVO9 = 1900 µs → ESP32 runs lower → release → reel in | |
-| 7 | `NAV_LOITER_TIME` (19) | Hold ~36 s while the ESP32 works | lowering |
-| 8 | `DO_SET_SERVO` (183) | SERVO9 = 1500 µs → ESP32 idle | |
-| 9 | `NAV_WAYPOINT` (16) | Climb back to cruise height above the drop zone | returning |
-| 10 | `NAV_RETURN_TO_LAUNCH` (20) | Fly home at cruise height and land (the bridge sets `RTL_ALT` = cruise height before take-off) | returning |
+| 6 | `DO_SET_SERVO` (183) | **SERVO8 = OPEN → storage box opens** ([doc 11](11-storage-box-servo.md)) | |
+| 7 | `NAV_LOITER_TIME` (19) | Hold 2 s while the box opens | lowering |
+| 8 | `DO_SET_SERVO` (183) | SERVO9 = 1900 µs → ESP32 runs lower → release → reel in | |
+| 9 | `NAV_LOITER_TIME` (19) | Hold ~36 s while the ESP32 works | lowering |
+| 10 | `DO_SET_SERVO` (183) | SERVO9 = 1500 µs → ESP32 idle | |
+| 11 | `DO_SET_SERVO` (183) | **SERVO8 = CLOSED → storage box closes** | |
+| 12 | `NAV_LOITER_TIME` (19) | Hold 2 s while the box closes | retracting |
+| 13 | `NAV_WAYPOINT` (16) | Climb back to cruise height above the drop zone | returning |
+| 14 | `NAV_RETURN_TO_LAUNCH` (20) | Fly home at cruise height and land (the bridge sets `RTL_ALT` = cruise height before take-off) | returning |
 
 With `PAYLOAD_MODE=ardupilot-winch` the drop instead uses ArduPilot's own winch and gripper:
 `DO_WINCH` (42600, action 1 = length, positive = pay out) and `DO_GRIPPER` (211, 0 = release),

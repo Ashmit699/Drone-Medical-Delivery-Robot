@@ -107,6 +107,7 @@ docs/01..10           plan, research and guide documents
 | 8 | `08-ardupilot-auto-missions.md` | **How orders become ArduCopter AUTO missions**: the mission table, flight controller parameters, Mission Planner workflow |
 | 9 | `09-testing-plan.md` | Stages 1–6 testing ladder, checklists, roles, go/no-go |
 | 10 | `10-sitl-windows-setup.md` | Connect Windows Mission Planner SITL to the Mac app and bridge |
+| 11 | `11-storage-box-servo.md` | Storage box door servo on output 8: mission steps, app buttons, wiring and FC setup |
 
 Folders the README mentions for later (`onboard/`, `firmware/payload/`, `hardware/`) **don't exist yet**.
 
@@ -325,11 +326,17 @@ adapter. Phase reports come back through `handlePhase`:
 | 3 | NAV_WAYPOINT, cruise over the target | cruise |
 | 4 | NAV_WAYPOINT, descend to 4 m | approach |
 | 5 | **NAV_LOITER_UNLIM**: hover until "Area clear" | awaiting_clearance |
-| 6 | DO_SET_SERVO 9 → **1900** (tell ESP32: drop) | |
-| 7 | NAV_LOITER_TIME (lower + release + retract time) | lowering |
-| 8 | DO_SET_SERVO 9 → **1500** (idle) | |
-| 9 | NAV_WAYPOINT, climb back to 60 m above the drop zone | returning |
-| 10 | NAV_RETURN_TO_LAUNCH (bridge sets `RTL_ALT` to cruise height first) | returning |
+| 6 | DO_SET_SERVO **8 → OPEN**: storage box opens | |
+| 7 | NAV_LOITER_TIME 2 s (box opening) | lowering |
+| 8 | DO_SET_SERVO 9 → **1900** (tell ESP32: drop) | |
+| 9 | NAV_LOITER_TIME (lower + release + retract time) | lowering |
+| 10 | DO_SET_SERVO 9 → **1500** (idle) | |
+| 11 | DO_SET_SERVO **8 → CLOSED**: storage box closes | |
+| 12 | NAV_LOITER_TIME 2 s (box closing) | retracting |
+| 13 | NAV_WAYPOINT, climb back to 60 m above the drop zone | returning |
+| 14 | NAV_RETURN_TO_LAUNCH (bridge sets `RTL_ALT` to cruise height first) | returning |
+
+**Storage box** ([docs/11](docs/11-storage-box-servo.md)): one servo on CrossFlight **output 8** (`SERVO8_FUNCTION = 0`, powered by a separate 5 V BEC). OPEN / CLOSED PWM are placeholders (1900 / 1100) in `config.box` until measured. The bridge closes it before arming, refuses to open it while flying between points, closes it on abort, and reports its real state from `SERVO_OUTPUT_RAW`. Operators can open or close it from **Ops → Live monitor**. Bridge commands now get a `result` reply, so refusals reach the app.
 
 Servo PWM codes to the ESP32: 1900 = drop, 1500 = idle, **1100 = abort** (reel in).
 The other mode uses ArduPilot's own DO_WINCH / DO_GRIPPER commands.

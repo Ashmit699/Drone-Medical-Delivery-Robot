@@ -37,7 +37,10 @@ export const PHASE_LABELS: Record<MissionPhase, string> = {
   aborted: 'Mission aborted, back at base',
 };
 
+export type BoxState = 'closed' | 'open' | 'unknown';
+
 export interface PayloadState {
+  box: BoxState; // storage box door (servo on output 8)
   gripper: 'closed' | 'open';
   winch: 'homed' | 'lowering' | 'holding' | 'retracting' | 'fault';
   ropeM: number;
@@ -81,7 +84,9 @@ export type DroneCommand =
   | { type: 'CLEARANCE' } // human confirmed the drop zone is clear: start lowering
   | { type: 'PAUSE' } // hold position (LOITER)
   | { type: 'RESUME' }
-  | { type: 'RTL' }; // abort: reel rope in if needed, then return to launch
+  | { type: 'RTL' } // abort: reel rope in if needed, then return to launch
+  | { type: 'BOX_OPEN' } // storage box door; only on the ground (loading) or hovering at the drop point
+  | { type: 'BOX_CLOSE' };
 
 export interface PhaseEvent {
   droneId: string;
@@ -123,7 +128,7 @@ export function baseTelemetry(droneId: string, home: LatLon): DroneTelemetry {
     distanceToTargetM: null,
     etaToDropS: null,
     paused: false,
-    payload: { gripper: 'closed', winch: 'homed', ropeM: 0, loaded: false },
+    payload: { box: 'closed', gripper: 'closed', winch: 'homed', ropeM: 0, loaded: false },
     updatedAt: Date.now(),
   };
 }

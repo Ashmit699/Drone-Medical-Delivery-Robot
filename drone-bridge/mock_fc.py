@@ -70,6 +70,7 @@ while True:
         m.mav.sys_status_send(0, 0, 0, 500, 15800, 0, 82, 0, 0, 0, 0, 0, 0)
         m.mav.gps_raw_int_send(0, 3, int(st["lat"] * 1e7), int(st["lon"] * 1e7), 0, 100, 100, 0, 0, 14)
         m.mav.mission_current_send(st["seq"])
+        m.mav.servo_output_raw_send(int(now * 1e6) & 0xFFFFFFFF, 0, *[st["servo"].get(n, 0) for n in range(1, 9)])
     msg = m.recv_match(blocking=True, timeout=0.05)
     if not msg: continue
     t = msg.get_type()

@@ -191,7 +191,7 @@ export interface Telemetry {
   distanceToTargetM: number | null;
   etaToDropS: number | null;
   paused: boolean;
-  payload: { gripper: 'closed' | 'open'; winch: 'homed' | 'lowering' | 'holding' | 'retracting' | 'fault'; ropeM: number; loaded: boolean };
+  payload: { box: 'closed' | 'open' | 'unknown'; gripper: 'closed' | 'open'; winch: 'homed' | 'lowering' | 'holding' | 'retracting' | 'fault'; ropeM: number; loaded: boolean };
   updatedAt: number;
 }
 

@@ -62,7 +62,7 @@ Replace `192.168.43.25` with the Windows IP.
    Emergency priority is auto-approved, which is quickest for demos.
 3. Operator: **Orders** → open it → **Load & dispatch** → choose **MDR-01** → hold to launch.
 4. Watch both screens:
-   - **Mission Planner (Windows):** the drone arms, takes off in GUIDED, switches to **AUTO** and flies the mission. *Plan → Read WPs* shows the same 11 items.
+   - **Mission Planner (Windows):** the drone arms, takes off in GUIDED, switches to **AUTO** and flies the mission. *Plan → Read WPs* shows the same 15 items.
    - **Mission Control (Mac):** order banner, ArduPilot mission step by step, telemetry from ArduPilot itself.
 5. When it hovers at 4 m, the teammate presses **Area clear** on the phone → it continues, then returns and lands.
 

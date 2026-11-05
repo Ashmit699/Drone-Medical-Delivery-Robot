@@ -22,6 +22,8 @@ const ALIGN_ALT_M = 8;
 const LOWER_MS = 0.25;
 const RETRACT_MS = 0.35;
 
+// The box may only open on the ground (loading) or while hovering over the drop point.
+const BOX_OPEN_PHASES: MissionPhase[] = ['awaiting_clearance', 'lowering', 'releasing', 'retracting'];
 const AIRBORNE: MissionPhase[] = ['takeoff', 'cruise', 'approach', 'aligning', 'awaiting_clearance', 'lowering', 'releasing', 'retracting', 'returning', 'landing'];
 
 export class SimDroneAdapter extends EventEmitter implements DroneAdapter {
@@ -53,7 +55,8 @@ export class SimDroneAdapter extends EventEmitter implements DroneAdapter {
     this.aborting = false;
     this.t.missionId = plan.missionId;
     this.t.paused = false;
-    this.t.payload = { gripper: 'closed', winch: 'homed', ropeM: 0, loaded: true };
+    // The box is shut before arming, like the bridge does on the real drone.
+    this.t.payload = { box: 'closed', gripper: 'closed', winch: 'homed', ropeM: 0, loaded: true };
     this.t.phase = 'preflight';
     // Report asynchronously, like a real drone would, so the dispatch is logged first.
     setImmediate(() => this.setPhase('preflight', 'Pre-flight checks passed. Arming motors'));
@@ -62,6 +65,15 @@ export class SimDroneAdapter extends EventEmitter implements DroneAdapter {
   async command(cmd: DroneCommand) {
     const phase = this.t.phase;
     switch (cmd.type) {
+      case 'BOX_OPEN':
+        if (this.t.armed && !BOX_OPEN_PHASES.includes(phase)) {
+          throw new Error('The box can only open on the ground or while hovering over the drop point');
+        }
+        this.t.payload.box = 'open';
+        return;
+      case 'BOX_CLOSE':
+        this.t.payload.box = 'closed';
+        return;
       case 'CLEARANCE':
         if (phase !== 'awaiting_clearance') throw new Error('Drone is not waiting for clearance');
         this.clearance = true;
@@ -89,6 +101,7 @@ export class SimDroneAdapter extends EventEmitter implements DroneAdapter {
         } else if (phase === 'lowering') {
           this.setPhase('retracting', 'Abort: reeling the package back up');
         } else {
+          this.t.payload.box = 'closed';
           this.t.mode = 'RTL';
           this.setPhase('returning', 'Abort: returning to base with the package');
         }
@@ -178,8 +191,9 @@ export class SimDroneAdapter extends EventEmitter implements DroneAdapter {
           t.markerErrorCm = 5 + Math.random() * 7;
           this.hover(t.markerErrorCm / 100);
           if (this.clearance) {
+            t.payload.box = 'open';
             t.payload.winch = 'lowering';
-            this.setPhase('lowering', 'Area clear confirmed. Lowering the package');
+            this.setPhase('lowering', 'Area clear confirmed. Box open, lowering the package');
           }
           break;
 
@@ -210,6 +224,7 @@ export class SimDroneAdapter extends EventEmitter implements DroneAdapter {
           if (t.payload.ropeM === 0) {
             t.payload.winch = 'homed';
             t.payload.gripper = 'closed';
+            t.payload.box = 'closed';
             t.mode = 'RTL';
             this.setPhase('returning', 'Rope secured. Returning to base');
           }

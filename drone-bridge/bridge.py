@@ -16,6 +16,7 @@ Run:
     python bridge.py --mavlink udp:127.0.0.1:14550                        # ArduPilot SITL
     python bridge.py ... --forward udp:192.168.1.20:14550                 # also feed Mission Planner
 Then in the app: Ops -> Fleet -> MDR-01 -> adapter "Radio bridge".
+Storage box: servo on output 8 (SERVO8_FUNCTION = 0); see docs/11-storage-box-servo.md.
 """
 
 import argparse
@@ -40,6 +41,10 @@ PHASE_ORDER = ["preflight", "takeoff", "cruise", "approach", "aligning", "awaiti
 INBOX_MSGS = {"MISSION_REQUEST_INT", "MISSION_REQUEST", "MISSION_ACK", "COMMAND_ACK", "AUTOPILOT_VERSION", "PARAM_VALUE",
               "TERRAIN_REPORT"}
 MIN_CLEARANCE_M = 20  # refuse to launch if the route passes closer than this to the ground at cruise height
+# Storage box door servo. The backend sends its real settings in "hello"; these are the fallbacks.
+DEFAULT_BOX = {"servo": 8, "pwmOpen": 1900, "pwmClose": 1100, "moveS": 2}
+# The box may only open on the ground (loading) or while hovering over the drop point.
+BOX_OPEN_PHASES = ("awaiting_clearance", "lowering", "releasing", "retracting")
 
 
 def distance_m(lat1, lon1, lat2, lon2):
@@ -59,7 +64,8 @@ class Vehicle:
         self.inbox = queue.Queue()
         self.on_message = lambda msg: None
         self.state = {"armed": False, "mode": "UNKNOWN", "lat": 0.0, "lon": 0.0, "alt": 0.0, "speed": 0.0, "heading": 0.0,
-                      "batteryV": 0.0, "batteryPct": 0, "sats": 0, "fix": 0, "seq": -1, "last_hb": 0.0}
+                      "batteryV": 0.0, "batteryPct": 0, "sats": 0, "fix": 0, "seq": -1, "last_hb": 0.0,
+                      "servo_out": {}}  # output number -> PWM the FC is actually sending (SERVO_OUTPUT_RAW)
 
     def connect(self, timeout=30):
         hb = self.m.wait_heartbeat(timeout=timeout)
@@ -96,6 +102,8 @@ class Vehicle:
                 s["sats"], s["fix"] = msg.satellites_visible, msg.fix_type
             elif t == "MISSION_CURRENT":
                 s["seq"] = msg.seq
+            elif t == "SERVO_OUTPUT_RAW" and msg.port == 0:
+                s["servo_out"] = {n: getattr(msg, f"servo{n}_raw", 0) for n in range(1, 17)}
             elif t == "STATUSTEXT":
                 print("[FC]", msg.text)
             if t in INBOX_MSGS:
@@ -188,6 +196,15 @@ class Vehicle:
     def set_servo(self, servo, pwm):
         self.command(mav.MAV_CMD_DO_SET_SERVO, servo, pwm)
 
+    def box_state(self, box):
+        """'open' / 'closed' from the PWM the FC is really sending on the box output, else 'unknown'."""
+        pwm = self.state["servo_out"].get(box["servo"], 0)
+        if abs(pwm - box["pwmOpen"]) <= 100:
+            return "open"
+        if abs(pwm - box["pwmClose"]) <= 100:
+            return "closed"
+        return "unknown"
+
     def firmware(self):
         self.m.mav.command_long_send(self.m.target_system, self.m.target_component,
                                      mav.MAV_CMD_REQUEST_AUTOPILOT_CAPABILITIES, 0, 1, 0, 0, 0, 0, 0, 0)
@@ -205,6 +222,7 @@ class Flight:
         self.v, self.plan, self.emit = vehicle, plan, emit
         self.mission = plan["mission"]
         self.items = self.mission["items"]
+        self.box = self.mission.get("box", DEFAULT_BOX)
         self.target = plan["target"]
         self.phase = None
         self.aborted = False
@@ -232,6 +250,8 @@ class Flight:
         if s["fix"] < 3:
             raise RuntimeError(f"No 3D GPS fix (fix type {s['fix']}, {s['sats']} satellites)")
         self.check_route_clearance()
+        # Never take off with the storage box open.
+        self.v.set_servo(self.box["servo"], self.box["pwmClose"])
         # Any RTL (mission end, operator abort, failsafe) returns at cruise height, not ArduPilot's 15 m default.
         if not self.v.set_param("RTL_ALT", self.plan["cruiseAltM"] * 100):
             print("[bridge] warning: could not set RTL_ALT; RTL may return lower than cruise altitude")
@@ -276,8 +296,9 @@ class Flight:
             if seq >= m["afterClearanceSeq"] and self.drop_started is None:
                 self.drop_started = time.time()
             # The drop hold finished (mission moved on) without an abort: the package is down.
-            # Checked before the current item's phase, because phases only move forward.
-            last_drop_seq = max(i["seq"] for i in self.items if i.get("phase") in ("lowering", "releasing", "retracting"))
+            # Checked before the current item's phase, because phases only move forward. The
+            # box-closing hold after it is a 'retracting' item, so it doesn't count as the drop.
+            last_drop_seq = max(i["seq"] for i in self.items if i.get("phase") in ("lowering", "releasing"))
             if seq > last_drop_seq and self.drop_started and not self.aborted and not self.delivered:
                 self.set_phase("releasing", "Package on the ground: hooks open")
                 self.set_phase("retracting", "Rope reeled in")
@@ -287,9 +308,10 @@ class Flight:
         # Clearance timeout: nobody confirmed the area is clear.
         if self.phase == "awaiting_clearance" and self.clearance_at and time.time() - self.clearance_at > m["clearanceTimeoutS"]:
             self.abort("No 'area clear' confirmation: returning to base")
-        # ESP32 mode has no separate release items, so estimate them from the drop timer.
+        # ESP32 mode has no separate release items, so estimate them from the drop timer
+        # (which starts when the box begins to open).
         if m["payloadMode"] == "esp32" and self.drop_started and not self.aborted:
-            dt = time.time() - self.drop_started
+            dt = time.time() - self.drop_started - self.box["moveS"]
             if dt > m["lowerS"] and self.phase == "lowering":
                 self.set_phase("releasing", "Package on the ground: hooks open")
             if dt > m["lowerS"] + 3 and self.phase == "releasing":
@@ -326,6 +348,10 @@ class Flight:
             self.set_phase("retracting", "Abort: reeling the package back up")
             time.sleep(self.mission["retractS"])
             self.v.set_servo(trig["servo"], trig["pwmIdle"])
+        if self.drop_started:
+            # Shut the box before flying anywhere.
+            self.v.set_servo(self.box["servo"], self.box["pwmClose"])
+            time.sleep(self.box["moveS"])
         self.v.set_mode("RTL")
         self.set_phase("returning", reason)
 
@@ -336,6 +362,7 @@ class Bridge:
         self.clients = set()
         self.flight = None
         self.loop = None
+        self.box = dict(DEFAULT_BOX)
 
     def emit(self, obj):
         """Thread-safe: queue a message for every connected backend."""
@@ -372,6 +399,7 @@ class Bridge:
             "paused": bool(f) and s["mode"] in ("LOITER", "BRAKE") and f.phase in ("cruise", "approach", "returning"),
             # Without ESP32 telemetry yet, payload state is inferred from the phase.
             "payload": {
+                "box": self.v.box_state(self.box),
                 "gripper": "open" if f and f.phase in ("releasing",) else "closed",
                 "winch": {"lowering": "lowering", "releasing": "holding", "retracting": "retracting"}.get(f.phase, "homed") if f else "homed",
                 "ropeM": 0,
@@ -386,10 +414,17 @@ class Bridge:
             async for raw in ws:
                 msg = json.loads(raw)
                 try:
-                    if msg["type"] == "start_mission":
+                    if msg["type"] == "hello":
+                        self.box.update(msg.get("box") or {})
+                    elif msg["type"] == "start_mission":
                         await self.start(msg["plan"])
                     elif msg["type"] == "command":
-                        await self.command(msg["command"]["type"])
+                        try:
+                            await self.command(msg["command"]["type"])
+                        except Exception as err:
+                            await ws.send(json.dumps({"type": "result", "id": msg.get("id"), "ok": False, "error": str(err)}))
+                        else:
+                            await ws.send(json.dumps({"type": "result", "id": msg.get("id"), "ok": True}))
                 except Exception as err:  # report to the app, keep the bridge alive
                     await ws.send(json.dumps({"type": "error", "message": str(err)}))
         finally:
@@ -408,11 +443,23 @@ class Bridge:
             raise
 
     async def command(self, kind):
+        if kind in ("BOX_OPEN", "BOX_CLOSE"):
+            await asyncio.to_thread(self.set_box, kind == "BOX_OPEN")
+            return
         f = self.flight
         if not f or f.phase in ("completed", "aborted"):
             raise RuntimeError("No active mission")
         action = {"CLEARANCE": f.clearance, "PAUSE": f.pause, "RESUME": f.resume, "RTL": f.abort}[kind]
         await asyncio.to_thread(action)
+
+    def set_box(self, open_it):
+        """Manual box control from the app, with the same safety rule as the mission."""
+        f = self.flight
+        flying = f is not None and f.phase not in (None, "completed", "aborted")
+        if open_it and self.v.state["armed"] and not (flying and f.phase in BOX_OPEN_PHASES):
+            raise RuntimeError("The box can only open on the ground or while hovering over the drop point")
+        box = f.box if flying else self.box
+        self.v.set_servo(box["servo"], box["pwmOpen"] if open_it else box["pwmClose"])
 
     async def loop_forever(self):
         last_hb = 0

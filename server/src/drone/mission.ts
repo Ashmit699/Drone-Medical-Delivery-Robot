@@ -44,6 +44,7 @@ export interface BuiltMission {
   retractS: number;
   clearanceTimeoutS: number; // bridge sends the drone home if nobody confirms "area clear"
   trigger: { servo: number; pwmDrop: number; pwmIdle: number; pwmAbort: number } | null; // esp32 mode only
+  box: { servo: number; pwmOpen: number; pwmClose: number; moveS: number }; // storage box door servo
 }
 
 /**
@@ -77,6 +78,13 @@ export function buildMission(plan: Omit<MissionPlan, 'mission'>, mode: PayloadMo
   add(MAV_CMD.NAV_LOITER_UNLIM, 'Hover: wait for "area clear"', { ...at(target, dropAltM), phase: 'awaiting_clearance' });
   const afterClearanceSeq = items.length;
 
+  // Storage box: opens only here, after the drone is hovering over the drop point and a person has
+  // confirmed the area is clear, and closes before the drone moves again. Being mission items,
+  // ArduPilot runs them itself even if the telemetry link drops at that moment.
+  const box = config.box;
+  add(MAV_CMD.DO_SET_SERVO, `Open storage box (SERVO${box.servo} = ${box.pwmOpen} µs)`, { params: [box.servo, box.pwmOpen, 0, 0] });
+  add(MAV_CMD.NAV_LOITER_TIME, `Hold ${box.moveS} s while the box opens`, { ...at(target, dropAltM), params: [box.moveS, 0, 0, 0], phase: 'lowering' });
+
   if (mode === 'esp32') {
     add(MAV_CMD.DO_SET_SERVO, `Signal ESP32: run drop sequence (SERVO${m.triggerServo} = ${m.pwmDrop} µs)`, { params: [m.triggerServo, m.pwmDrop, 0, 0] });
     add(MAV_CMD.NAV_LOITER_TIME, `Hold ${lowerS + 3 + retractS} s while it lowers, releases and reels in`, { ...at(target, dropAltM), params: [lowerS + 3 + retractS, 0, 0, 0], phase: 'lowering' });
@@ -90,6 +98,8 @@ export function buildMission(plan: Omit<MissionPlan, 'mission'>, mode: PayloadMo
     add(MAV_CMD.NAV_LOITER_TIME, `Hold ${retractS} s while reeling in`, { ...at(target, dropAltM), params: [retractS, 0, 0, 0], phase: 'retracting' });
     add(MAV_CMD.DO_GRIPPER, 'Gripper: close', { params: [1, 1, 0, 0] });
   }
+  add(MAV_CMD.DO_SET_SERVO, `Close storage box (SERVO${box.servo} = ${box.pwmClose} µs)`, { params: [box.servo, box.pwmClose, 0, 0] });
+  add(MAV_CMD.NAV_LOITER_TIME, `Hold ${box.moveS} s while the box closes`, { ...at(target, dropAltM), params: [box.moveS, 0, 0, 0], phase: 'retracting' });
   // Climb back to cruise height before heading home: RTL on its own only climbs to RTL_ALT
   // (15 m by default), which flew into raised ground between the drop zone and the hub in SITL.
   add(MAV_CMD.NAV_WAYPOINT, `Climb to ${cruiseAltM} m before heading home`, { ...at(target, cruiseAltM), phase: 'returning' });
@@ -104,6 +114,7 @@ export function buildMission(plan: Omit<MissionPlan, 'mission'>, mode: PayloadMo
     retractS,
     clearanceTimeoutS: m.clearanceTimeoutS,
     trigger: mode === 'esp32' ? { servo: m.triggerServo, pwmDrop: m.pwmDrop, pwmIdle: m.pwmIdle, pwmAbort: m.pwmAbort } : null,
+    box: { ...box },
   };
 }
 

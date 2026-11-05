@@ -15,6 +15,7 @@ import {
 } from './types';
 
 const RECONNECT_MS = 5000;
+const COMMAND_TIMEOUT_MS = 20_000; // an abort with the package on the rope waits for the reel-in
 
 export class BridgeDroneAdapter extends EventEmitter implements DroneAdapter {
   readonly kind = 'bridge' as const;
@@ -22,6 +23,8 @@ export class BridgeDroneAdapter extends EventEmitter implements DroneAdapter {
   private ws: WebSocket | null = null;
   private retry: NodeJS.Timeout | undefined;
   private disposed = false;
+  private nextId = 1;
+  private pending = new Map<number, { resolve: () => void; reject: (e: Error) => void; timer: NodeJS.Timeout }>();
 
   constructor(readonly id: string, home: LatLon, private url = config.droneBridgeUrl) {
     super();
@@ -37,8 +40,23 @@ export class BridgeDroneAdapter extends EventEmitter implements DroneAdapter {
     this.send({ type: 'start_mission', plan });
   }
 
-  async command(command: DroneCommand) {
-    this.send({ type: 'command', command });
+  /** Resolves when the bridge confirms the command ran on the drone; rejects with the bridge's reason. */
+  command(command: DroneCommand) {
+    const id = this.nextId++;
+    return new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error('The drone bridge did not answer in time'));
+      }, COMMAND_TIMEOUT_MS);
+      this.pending.set(id, { resolve, reject, timer });
+      try {
+        this.send({ type: 'command', id, command });
+      } catch (err) {
+        clearTimeout(timer);
+        this.pending.delete(id);
+        reject(err as Error);
+      }
+    });
   }
 
   dispose() {
@@ -53,13 +71,18 @@ export class BridgeDroneAdapter extends EventEmitter implements DroneAdapter {
     this.ws = ws;
     ws.addEventListener('open', () => {
       this.t.connected = true;
-      ws.send(JSON.stringify({ type: 'hello', droneId: this.id }));
+      ws.send(JSON.stringify({ type: 'hello', droneId: this.id, box: config.box }));
       this.publish();
     });
     ws.addEventListener('message', (ev) => this.handle(String(ev.data)));
     ws.addEventListener('close', () => {
       this.ws = null;
       this.t.connected = false;
+      for (const p of this.pending.values()) {
+        clearTimeout(p.timer);
+        p.reject(new Error('Lost connection to the drone bridge'));
+      }
+      this.pending.clear();
       this.publish();
       if (!this.disposed) this.retry = setTimeout(() => this.connect(), RECONNECT_MS);
     });
@@ -82,6 +105,13 @@ export class BridgeDroneAdapter extends EventEmitter implements DroneAdapter {
       const phase = msg.phase as MissionPhase;
       this.t.phase = phase;
       this.emit('phase', { droneId: this.id, missionId: msg.missionId, phase, message: msg.message ?? PHASE_LABELS[phase] });
+    } else if (msg.type === 'result') {
+      const p = this.pending.get(msg.id);
+      if (!p) return;
+      clearTimeout(p.timer);
+      this.pending.delete(msg.id);
+      if (msg.ok) p.resolve();
+      else p.reject(new Error(msg.error ?? 'Command failed'));
     } else if (msg.type === 'error') {
       console.warn(`[bridge ${this.id}]`, msg.message);
     }

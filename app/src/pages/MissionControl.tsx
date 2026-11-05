@@ -346,6 +346,18 @@ export default function MissionControl() {
                 {t ? `${t.payload.ropeM.toFixed(1)} m · ${t.payload.gripper}` : '—'}
               </span>
             </div>
+            <div className="mt-2 flex items-center gap-3">
+              <div className="hud w-20">Box</div>
+              <span
+                className={cx(
+                  'rounded px-2 py-0.5 font-mono text-xs font-bold uppercase',
+                  t?.payload.box === 'open' ? 'bg-amber-500/15 text-amber-300' : t?.payload.box === 'closed' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/[0.06] text-slate-400',
+                )}
+              >
+                {t ? (t.payload.box === 'unknown' ? 'no signal' : t.payload.box) : '—'}
+              </span>
+              <span className="font-mono text-xs text-slate-500">servo · output 8</span>
+            </div>
           </div>
 
           <div className="card flex min-h-0 flex-col p-4 2xl:flex-1">

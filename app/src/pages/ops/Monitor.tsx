@@ -1,4 +1,4 @@
-import { Anchor, Battery, Compass, Crosshair, Gauge, Hand, Home, Mountain, Pause, Play, Plane, Satellite, Zap } from 'lucide-react';
+import { Anchor, Battery, Compass, Crosshair, Gauge, Hand, Home, Lock, Mountain, Package, PackageOpen, Pause, Play, Plane, Satellite, Zap } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LiveMap } from '../../components/maps';
@@ -10,6 +10,8 @@ import type { LatLon, OrderSummary, Telemetry } from '../../lib/types';
 import { useFleet } from '../../lib/useFleet';
 
 const CAN_PAUSE = ['cruise', 'approach', 'returning'];
+// Same rule as the bridge: the box opens only on the ground (loading) or hovering over the drop point.
+const BOX_OPEN_PHASES = ['awaiting_clearance', 'lowering', 'releasing', 'retracting'];
 const CAN_RTL = ['preflight', 'takeoff', 'cruise', 'approach', 'aligning', 'awaiting_clearance', 'lowering'];
 
 export default function Monitor() {
@@ -47,7 +49,7 @@ export default function Monitor() {
   const flight = flights?.find((f) => f.drone_id === drone.id);
   const ropePct = t ? Math.min(100, (t.payload.ropeM / config.flight.dropAltM) * 100) : 0;
 
-  const command = async (type: 'PAUSE' | 'RESUME' | 'RTL') => {
+  const command = async (type: 'PAUSE' | 'RESUME' | 'RTL' | 'BOX_OPEN' | 'BOX_CLOSE') => {
     setError(null);
     try {
       await api(`/ops/drones/${drone.id}/command`, { body: { type } });
@@ -165,6 +167,38 @@ export default function Monitor() {
                     <dd className="font-semibold">{t.payload.loaded ? 'On board' : 'None'}</dd>
                   </div>
                 </dl>
+              </div>
+              <div className="mt-4 rounded-xl border border-line p-3">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-sm font-semibold">
+                    {t.payload.box === 'open' ? <PackageOpen className="h-4 w-4 text-amber-400" /> : <Package className="h-4 w-4 text-brand-400" />}
+                    Storage box
+                  </span>
+                  <span
+                    className={cx(
+                      'rounded-full px-2.5 py-0.5 text-xs font-bold uppercase',
+                      t.payload.box === 'open' ? 'bg-amber-500/15 text-amber-300' : t.payload.box === 'closed' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/[0.06] text-slate-400',
+                    )}
+                  >
+                    {t.payload.box === 'unknown' ? 'No servo signal' : t.payload.box}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    className="btn-secondary"
+                    disabled={t.armed && !BOX_OPEN_PHASES.includes(t.phase)}
+                    title={t.armed && !BOX_OPEN_PHASES.includes(t.phase) ? 'Only on the ground or hovering over the drop point' : undefined}
+                    onClick={() => command('BOX_OPEN')}
+                  >
+                    <PackageOpen className="h-4 w-4" /> Open box
+                  </button>
+                  <button className="btn-secondary" onClick={() => command('BOX_CLOSE')}>
+                    <Lock className="h-4 w-4" /> Close box
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-slate-400">
+                  Servo on output 8. During a delivery the box opens by itself after "Area clear" and closes before the drone climbs away.
+                </p>
               </div>
             </div>
           )}

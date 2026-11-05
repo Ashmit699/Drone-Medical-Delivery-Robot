@@ -45,6 +45,15 @@ export const config = {
     clearanceTimeoutS: 180, // no "area clear" in this time → bridge sends the drone home
   },
 
+  // Storage box door: one servo on CrossFlight output 8, driven by DO_SET_SERVO (needs SERVO8_FUNCTION = 0).
+  // PWM values are placeholders until the real OPEN / CLOSED positions are measured (docs/11-storage-box-servo.md).
+  box: {
+    servo: Number(process.env.BOX_SERVO ?? 8),
+    pwmOpen: Number(process.env.BOX_PWM_OPEN ?? 1900),
+    pwmClose: Number(process.env.BOX_PWM_CLOSE ?? 1100),
+    moveS: 2, // time the door needs to open or close fully; the drone holds still meanwhile
+  },
+
   // Simulator time multiplier: 1 = real time, 4 = four times faster (good for demos).
   simSpeed: Number(process.env.SIM_SPEED ?? 4),
 

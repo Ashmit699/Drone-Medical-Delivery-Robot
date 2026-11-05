@@ -114,7 +114,7 @@ opsRoutes.get('/drones', (_req, res) => {
 });
 
 opsRoutes.post('/drones/:id/command', async (req, res) => {
-  const { type } = z.object({ type: z.enum(['PAUSE', 'RESUME', 'RTL']) }).parse(req.body);
+  const { type } = z.object({ type: z.enum(['PAUSE', 'RESUME', 'RTL', 'BOX_OPEN', 'BOX_CLOSE']) }).parse(req.body);
   const id = String(req.params.id);
   try {
     await drones.get(id).command({ type });
@@ -125,7 +125,13 @@ opsRoutes.post('/drones/:id/command', async (req, res) => {
   const t = drones.telemetry(id);
   const active = one<{ id: number }>(`SELECT id FROM orders WHERE drone_id = ? AND mission_id = ?`, id, t?.missionId ?? -1);
   if (active) {
-    const label = { PAUSE: 'Operator paused the drone (holding position)', RESUME: 'Operator resumed the mission', RTL: 'Operator ordered return to base' }[type];
+    const label = {
+      PAUSE: 'Operator paused the drone (holding position)',
+      RESUME: 'Operator resumed the mission',
+      RTL: 'Operator ordered return to base',
+      BOX_OPEN: 'Operator opened the storage box',
+      BOX_CLOSE: 'Operator closed the storage box',
+    }[type];
     run('INSERT INTO events (order_id, type, message) VALUES (?, ?, ?)', active.id, `cmd:${type}`, label);
   }
   res.json({ ok: true, telemetry: t });

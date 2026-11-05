@@ -211,8 +211,9 @@ export default function Track() {
               <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/[0.06]">
                 <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${Math.min(100, (t.payload.ropeM / (dropAlt - 0.2)) * 100)}%` }} />
               </div>
-              <div className="mt-1.5 text-xs text-slate-400">
-                Rope {t.payload.ropeM.toFixed(1)} m of {(dropAlt - 0.2).toFixed(1)} m
+              <div className="mt-1.5 flex justify-between text-xs text-slate-400">
+                <span>Rope {t.payload.ropeM.toFixed(1)} m of {(dropAlt - 0.2).toFixed(1)} m</span>
+                <span>Storage box {t.payload.box === 'open' ? 'open' : 'closed'}</span>
               </div>
             </div>
           )}

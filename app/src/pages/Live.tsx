@@ -127,7 +127,6 @@ export default function Live() {
                 <Map3D config={config} target={null} drone={asTelemetry(d)} chase className="h-64 w-full" />
               </Suspense>
               {/* scanlines + HUD overlay */}
-              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0)_50%,rgba(0,0,0,0.22)_50%)] [background-size:100%_3px]" />
               <div className="pointer-events-none absolute inset-0 grid place-items-center">
                 <Crosshair className="h-10 w-10 text-brand-300/60" strokeWidth={1} />
               </div>

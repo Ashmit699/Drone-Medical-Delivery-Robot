@@ -32,7 +32,7 @@ import { ErrorNote, Modal, PayloadMeter, Spinner } from './ui';
 export function Logo({ compact }: { compact?: boolean }) {
   return (
     <Link to="/" className="group flex items-center gap-2.5">
-      <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-violet-500 shadow-[0_0_24px_-4px_rgba(34,229,211,0.8)]">
+      <span className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-violet-500">
         <svg viewBox="0 0 24 24" className="h-5 w-5 text-slate-950" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round">
           <path d="M12 6v12M6 12h12" />
         </svg>
@@ -380,7 +380,7 @@ function SosButton() {
   return (
     <button
       onClick={() => setSosOpen(true)}
-      className="fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-rose-500 to-red-600 px-4 py-3 text-sm font-bold text-white shadow-[0_0_30px_-4px_rgba(244,63,94,0.8)] transition hover:scale-105"
+      className="fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full bg-rose-500 px-4 py-3 text-sm font-bold text-slate-950 transition hover:scale-105"
       aria-label="Emergency SOS"
     >
       <span className="relative flex h-2.5 w-2.5">

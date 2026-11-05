@@ -12,7 +12,7 @@ const hubIcon = L.divIcon({
   className: 'map-pin',
   iconSize: [38, 38],
   iconAnchor: [19, 19],
-  html: `<div style="width:38px;height:38px;border-radius:12px;background:#0a111e;color:#22e5d3;display:grid;place-items:center;box-shadow:0 0 18px rgba(34,229,211,.6);border:2px solid #22e5d3">
+  html: `<div style="width:38px;height:38px;border-radius:12px;background:#0d2c4a;color:#00c2c7;display:grid;place-items:center;border:2px solid #00c2c7">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg></div>`,
 });
 
@@ -20,12 +20,12 @@ const dropIcon = L.divIcon({
   className: 'map-pin',
   iconSize: [34, 44],
   iconAnchor: [17, 42],
-  html: `<svg width="34" height="44" viewBox="0 0 34 44"><path d="M17 43s15-14.6 15-26A15 15 0 0 0 2 17c0 11.4 15 26 15 26z" fill="#8b5cf6" stroke="#e9d5ff" stroke-width="2"/>
-    <rect x="10" y="10" width="14" height="14" fill="#fff" rx="1"/><rect x="12" y="12" width="4" height="4" fill="#0f1f2e"/><rect x="18" y="12" width="4" height="4" fill="#0f1f2e"/><rect x="12" y="18" width="4" height="4" fill="#0f1f2e"/><rect x="18.5" y="18.5" width="3" height="3" fill="#0f1f2e"/></svg>`,
+  html: `<svg width="34" height="44" viewBox="0 0 34 44"><path d="M17 43s15-14.6 15-26A15 15 0 0 0 2 17c0 11.4 15 26 15 26z" fill="#82a8c4" stroke="#f5f9fc" stroke-width="2"/>
+    <rect x="10" y="10" width="14" height="14" fill="#fff" rx="1"/><rect x="12" y="12" width="4" height="4" fill="#09243e"/><rect x="18" y="12" width="4" height="4" fill="#09243e"/><rect x="12" y="18" width="4" height="4" fill="#09243e"/><rect x="18.5" y="18.5" width="3" height="3" fill="#09243e"/></svg>`,
 });
 
 function droneIcon(heading: number, active: boolean) {
-  const color = active ? '#22e5d3' : '#64748b';
+  const color = active ? '#00c2c7' : '#6b8399';
   return L.divIcon({
     className: 'map-pin',
     iconSize: [44, 44],
@@ -34,7 +34,7 @@ function droneIcon(heading: number, active: boolean) {
       <svg width="44" height="44" viewBox="0 0 44 44">
         ${active ? `<circle cx="22" cy="22" r="20" fill="${color}" opacity=".15"><animate attributeName="r" values="14;21;14" dur="1.6s" repeatCount="indefinite"/></circle>` : ''}
         <g stroke="${color}" stroke-width="2.5" stroke-linecap="round"><path d="M13 13l18 18M31 13L13 31"/></g>
-        ${[13, 31].flatMap((x) => [13, 31].map((y) => `<circle cx="${x}" cy="${y}" r="5.5" fill="#0a111e" stroke="${color}" stroke-width="2"/>`)).join('')}
+        ${[13, 31].flatMap((x) => [13, 31].map((y) => `<circle cx="${x}" cy="${y}" r="5.5" fill="#0d2c4a" stroke="${color}" stroke-width="2"/>`)).join('')}
         <rect x="17" y="17" width="10" height="10" rx="3" fill="${color}"/>
         <path d="M22 9l3 4h-6z" fill="${color}"/>
       </svg></div>`,
@@ -100,7 +100,7 @@ export function MapPicker({
     <div className="relative overflow-hidden rounded-2xl border border-line">
       <MapContainer center={[hub.lat, hub.lon]} zoom={13} className="h-72 w-full sm:h-80" scrollWheelZoom={false}>
         <TileLayer url={TILE_URL} attribution={ATTRIBUTION} maxNativeZoom={18} maxZoom={20} />
-        <Circle center={[hub.lat, hub.lon]} radius={radiusKm * 1000} pathOptions={{ color: '#22e5d3', weight: 1.5, fillOpacity: 0.06, dashArray: '6 6' }} />
+        <Circle center={[hub.lat, hub.lon]} radius={radiusKm * 1000} pathOptions={{ color: '#00c2c7', weight: 1.5, fillOpacity: 0.06, dashArray: '6 6' }} />
         <Marker position={[hub.lat, hub.lon]} icon={hubIcon}>
           <Tooltip direction="top" offset={[0, -18]}>
             MediDrop hub
@@ -180,7 +180,7 @@ export function LiveMap({
       </Marker>
       {targets.map((t, i) => (
         <span key={i}>
-          <Polyline positions={[[hub.lat, hub.lon], [t.lat, t.lon]]} pathOptions={{ color: '#a78bfa', weight: 2, dashArray: '4 8', opacity: 0.8 }} />
+          <Polyline positions={[[hub.lat, hub.lon], [t.lat, t.lon]]} pathOptions={{ color: '#b9f0ec', weight: 2, dashArray: '4 8', opacity: 0.8 }} />
           <Marker position={[t.lat, t.lon]} icon={dropIcon} />
         </span>
       ))}
@@ -189,7 +189,7 @@ export function LiveMap({
         const active = t.armed || t.droneId === activeDroneId;
         return (
           <span key={t.droneId}>
-            {trail.length > 1 && <Polyline positions={trail} pathOptions={{ color: '#22e5d3', weight: 3, opacity: 0.8 }} />}
+            {trail.length > 1 && <Polyline positions={trail} pathOptions={{ color: '#00c2c7', weight: 3, opacity: 0.8 }} />}
             <Marker
               position={[t.position.lat, t.position.lon]}
               icon={droneIcon(Math.round(t.headingDeg / 5) * 5, active)}

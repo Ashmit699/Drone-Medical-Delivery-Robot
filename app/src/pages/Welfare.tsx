@@ -85,7 +85,7 @@ function WelfareForm({ onSaved }: { onSaved: (w: Welfare) => void }) {
         <input id="loc" className="input" placeholder="e.g. Rampur village, Lucknow, UP" required minLength={3} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
       </div>
       <ErrorNote>{error}</ErrorNote>
-      <button className="btn w-full bg-violet-500 py-3 text-white shadow-[0_0_28px_-6px_rgba(139,92,246,0.8)] hover:bg-violet-400" disabled={busy}>
+      <button className="btn w-full bg-violet-500 py-3 text-white hover:bg-violet-400" disabled={busy}>
         {busy ? <Spinner className="h-4 w-4 text-white" /> : <ShieldCheck className="h-4 w-4" />} Submit for verification
       </button>
       <p className="text-center text-xs text-slate-500">Demo app: please don't enter a real document number. Operators only see it to check eligibility.</p>
@@ -101,7 +101,7 @@ export default function Welfare() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <div className="text-center">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-violet-400/30 bg-violet-500/10 shadow-[0_0_40px_-10px_rgba(139,92,246,0.9)]">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-violet-400/30 bg-violet-500/10">
           <BadgePercent className="h-8 w-8 text-violet-300" />
         </div>
         <div className="hud mt-6 text-violet-300">Direct benefit pricing</div>

@@ -55,7 +55,7 @@ export default function Plans() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <div className="mx-auto max-w-2xl text-center">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-emerald-400/30 bg-emerald-500/10 shadow-[0_0_40px_-10px_rgba(52,211,153,0.9)]">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-emerald-400/30 bg-emerald-500/10">
           <ShieldCheck className="h-8 w-8 text-emerald-300" />
         </div>
         <div className="hud mt-6 text-emerald-300">MediDrop Care</div>
@@ -87,7 +87,7 @@ export default function Plans() {
               key={p.id}
               className={cx(
                 'card relative flex flex-col p-6',
-                p.popular && 'border-brand-400/50 shadow-[0_0_60px_-20px_rgba(34,229,211,0.6)]',
+                p.popular && 'border-brand-400/50',
                 isCurrent && 'ring-2 ring-emerald-400/50',
               )}
             >

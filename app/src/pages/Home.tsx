@@ -90,8 +90,6 @@ export default function Home() {
     <>
       {/* ---------------- Hero ---------------- */}
       <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute -left-40 top-20 h-96 w-96 rounded-full bg-brand-400/20 blur-[120px]" />
-        <div className="pointer-events-none absolute -right-20 top-0 h-[28rem] w-[28rem] rounded-full bg-rose-600/15 blur-[140px]" />
         <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-10 pt-12 sm:px-6 md:grid-cols-[1.15fr_1fr] md:pt-16">
           <div className="animate-fade-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-rose-400/30 bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-200">
@@ -164,7 +162,7 @@ export default function Home() {
         <div className="grid gap-5 md:grid-cols-3">
           {ADS.map((a) => (
             <Link key={a.tag} to={a.to} className={cx('group relative overflow-hidden rounded-3xl border bg-gradient-to-br via-panel to-panel p-6 transition hover:-translate-y-1', a.tone)}>
-              <a.icon className="h-9 w-9 drop-shadow-[0_0_12px_currentColor]" />
+              <a.icon className="h-9 w-9" />
               <div className="mt-4 text-xs font-semibold uppercase tracking-wider">{a.tag}</div>
               <h3 className="mt-1 text-xl font-bold text-white">{a.title}</h3>
               <p className="mt-2 text-sm text-slate-400">{a.text}</p>
@@ -193,7 +191,7 @@ export default function Home() {
                   to={`/shop?category=${encodeURIComponent(c.name)}`}
                   className={cx('group relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br p-4 transition hover:-translate-y-1 hover:border-white/20', tone?.tile, tone?.glow)}
                 >
-                  <Icon className="h-7 w-7 drop-shadow-[0_0_10px_currentColor]" strokeWidth={1.6} />
+                  <Icon className="h-7 w-7" strokeWidth={1.6} />
                   <div className="mt-6 text-sm font-semibold text-white">{c.name}</div>
                   <div className="font-mono text-[11px] text-slate-500">{c.count} items</div>
                 </Link>

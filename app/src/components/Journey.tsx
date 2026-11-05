@@ -19,7 +19,7 @@ export function Journey({ order }: { order: OrderDetail }) {
             <span
               className={cx(
                 'relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold',
-                done ? 'bg-brand-600 text-white' : current ? 'bg-panel text-brand-300 ring-4 ring-brand-500/20 border-2 border-brand-500' : 'bg-white/[0.06] text-slate-500',
+                done ? 'bg-brand-400 text-slate-950' : current ? 'bg-panel text-brand-300 ring-4 ring-brand-500/20 border-2 border-brand-500' : 'bg-white/[0.06] text-slate-500',
               )}
             >
               {done ? <Check className="h-4 w-4" /> : current ? <span className="h-2.5 w-2.5 animate-ping rounded-full bg-brand-500" /> : i + 1}

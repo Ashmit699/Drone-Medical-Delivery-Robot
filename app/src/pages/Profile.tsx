@@ -22,7 +22,7 @@ export default function Profile() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       <div className="card flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center">
-        <div className="grid h-16 w-16 place-items-center rounded-2xl bg-brand-600 text-2xl font-bold text-white">{me.name[0]}</div>
+        <div className="grid h-16 w-16 place-items-center rounded-2xl bg-brand-400 text-2xl font-bold text-slate-950">{me.name[0]}</div>
         <div className="flex-1">
           <h1 className="text-2xl font-bold">{me.name}</h1>
           <p className="text-sm text-slate-400">

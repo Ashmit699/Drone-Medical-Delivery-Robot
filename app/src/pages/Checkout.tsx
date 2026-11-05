@@ -23,7 +23,7 @@ function Section({ n, title, children, done }: { n: number; title: string; child
   return (
     <section className="card p-5 sm:p-6">
       <h2 className="mb-4 flex items-center gap-3 text-lg font-bold">
-        <span className={cx('grid h-7 w-7 place-items-center rounded-full text-sm', done ? 'bg-brand-600 text-white' : 'bg-white/[0.06] text-slate-300')}>
+        <span className={cx('grid h-7 w-7 place-items-center rounded-full text-sm', done ? 'bg-brand-400 text-slate-950' : 'bg-white/[0.06] text-slate-300')}>
           {done ? <Check className="h-4 w-4" /> : n}
         </span>
         {title}

@@ -247,7 +247,7 @@ export default function MissionControl() {
                 key={o.id}
                 className={cx(
                   'rounded-xl border p-3 transition',
-                  fresh.has(o.id) ? 'animate-fade-up border-brand-400/70 bg-brand-400/10 shadow-[0_0_30px_-10px_rgba(34,229,211,0.8)]' : o.id === active?.id ? 'border-violet-400/50 bg-violet-500/10' : 'border-line bg-white/[0.02]',
+                  fresh.has(o.id) ? 'animate-fade-up border-brand-400/70 bg-brand-400/10' : o.id === active?.id ? 'border-violet-400/50 bg-violet-500/10' : 'border-line bg-white/[0.02]',
                 )}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -318,7 +318,6 @@ export default function MissionControl() {
             <Suspense fallback={<div className="grid h-full place-items-center"><Spinner /></div>}>
               {t && <Map3D config={config} target={active && flying ? { lat: active.lat, lon: active.lon } : null} drone={t} chase className="h-56 w-full" />}
             </Suspense>
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0)_50%,rgba(0,0,0,0.22)_50%)] [background-size:100%_3px]" />
             <div className="pointer-events-none absolute bottom-2 left-2 rounded bg-ink/80 px-2 py-0.5 font-mono text-[10px] text-emerald-300">CHASE CAM // {droneId}</div>
             <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-ink/80 px-2 py-0.5 font-mono text-[10px] text-violet-200">{engine}</div>
           </div>

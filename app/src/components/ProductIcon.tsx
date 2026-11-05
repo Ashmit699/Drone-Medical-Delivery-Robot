@@ -39,15 +39,15 @@ const ICONS: Record<string, LucideIcon> = {
   wind: Wind,
 };
 
-// Each category glows in its own neon colour.
+// Category tints, kept within the palette: coral is reserved for Emergency.
 export const CATEGORY_TONE: Record<string, { tile: string; glow: string }> = {
-  Emergency: { tile: 'from-rose-500/25 via-rose-500/5 to-transparent text-rose-300', glow: 'shadow-[0_0_40px_-12px_rgba(244,63,94,0.6)]' },
-  'First Aid': { tile: 'from-orange-500/25 via-orange-500/5 to-transparent text-orange-300', glow: 'shadow-[0_0_40px_-12px_rgba(249,115,22,0.6)]' },
-  Medicines: { tile: 'from-brand-400/25 via-brand-400/5 to-transparent text-brand-300', glow: 'shadow-[0_0_40px_-12px_rgba(34,229,211,0.6)]' },
-  Diagnostics: { tile: 'from-violet-500/25 via-violet-500/5 to-transparent text-violet-300', glow: 'shadow-[0_0_40px_-12px_rgba(139,92,246,0.6)]' },
-  'Cold Chain': { tile: 'from-sky-500/25 via-sky-500/5 to-transparent text-sky-300', glow: 'shadow-[0_0_40px_-12px_rgba(14,165,233,0.6)]' },
-  'Relief & Survival': { tile: 'from-amber-500/25 via-amber-500/5 to-transparent text-amber-300', glow: 'shadow-[0_0_40px_-12px_rgba(245,158,11,0.6)]' },
-  'Mother & Baby': { tile: 'from-pink-500/25 via-pink-500/5 to-transparent text-pink-300', glow: 'shadow-[0_0_40px_-12px_rgba(236,72,153,0.6)]' },
+  Emergency: { tile: 'from-rose-500/15 to-transparent text-rose-400', glow: '' },
+  'First Aid': { tile: 'from-emerald-300/10 to-transparent text-emerald-300', glow: '' },
+  Medicines: { tile: 'from-brand-400/15 to-transparent text-brand-400', glow: '' },
+  Diagnostics: { tile: 'from-violet-400/15 to-transparent text-violet-300', glow: '' },
+  'Cold Chain': { tile: 'from-brand-200/10 to-transparent text-brand-200', glow: '' },
+  'Relief & Survival': { tile: 'from-slate-400/15 to-transparent text-slate-300', glow: '' },
+  'Mother & Baby': { tile: 'from-violet-300/10 to-transparent text-violet-200', glow: '' },
 };
 const FALLBACK = { tile: 'from-slate-500/20 to-transparent text-slate-300', glow: '' };
 
@@ -72,7 +72,7 @@ export function ProductIcon({ icon, category, size = 'md' }: { icon: string; cat
       {size !== 'sm' && (
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:12px_12px]" />
       )}
-      <Icon className={cx('relative drop-shadow-[0_0_12px_currentColor]', glyph)} strokeWidth={1.5} />
+      <Icon className={cx('relative', glyph)} strokeWidth={1.5} />
     </div>
   );
 }

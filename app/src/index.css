@@ -6,24 +6,109 @@
   --font-display: 'Space Grotesk', 'Inter', ui-sans-serif, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  /* Neon aqua brand */
-  --color-brand-50: #eafffd;
-  --color-brand-100: #c9fff9;
-  --color-brand-200: #95fff2;
-  --color-brand-300: #5af7e6;
-  --color-brand-400: #22e5d3;
-  --color-brand-500: #0fc9b9;
-  --color-brand-600: #0aa197;
-  --color-brand-700: #0d7f79;
-  --color-brand-800: #106562;
-  --color-brand-900: #124f4d;
+  /* MediDrop palette: Midnight Navy #09243E · Pulse Teal #00C2C7 · Clinical White #F5F9FC ·
+     Emergency Coral #FF685F · Steel Blue #1E4059 · Sky Mint #B9F0EC.
+     Tailwind's default scales are remapped onto it so every existing class follows the palette. */
+  --color-white: #f5f9fc;
+  --color-black: #09243e;
 
-  /* Dark surfaces */
-  --color-ink: #03060d;
-  --color-void: #050a14;
-  --color-panel: #0a111e;
-  --color-panel-2: #0f1a2c;
-  --color-line: rgb(148 163 184 / 0.13);
+  /* Pulse Teal: primary accent */
+  --color-brand-50: #e8fbfb;
+  --color-brand-100: #cff6f6;
+  --color-brand-200: #b9f0ec;
+  --color-brand-300: #5fdcdf;
+  --color-brand-400: #00c2c7;
+  --color-brand-500: #00adb2;
+  --color-brand-600: #00969a;
+  --color-brand-700: #007a7e;
+  --color-brand-800: #075e63;
+  --color-brand-900: #0b4a50;
+
+  /* Surfaces: Midnight Navy → Steel Blue */
+  --color-ink: #071c31;
+  --color-void: #09243e;
+  --color-panel: #0d2c4a;
+  --color-panel-2: #1e4059;
+  --color-line: rgb(181 197 211 / 0.16);
+
+  /* Neutrals, tinted towards navy (50 = Clinical White, 800 = Steel Blue, 950 = Midnight Navy) */
+  --color-slate-50: #f5f9fc;
+  --color-slate-100: #e9f0f6;
+  --color-slate-200: #d6e1ea;
+  --color-slate-300: #b5c5d3;
+  --color-slate-400: #8fa4b7;
+  --color-slate-500: #6b8399;
+  --color-slate-600: #4d657b;
+  --color-slate-700: #355066;
+  --color-slate-800: #1e4059;
+  --color-slate-900: #12304b;
+  --color-slate-950: #09243e;
+
+  /* Teal family → Pulse Teal */
+  --color-cyan-300: #5fdcdf;
+  --color-cyan-400: #00c2c7;
+  --color-cyan-500: #00adb2;
+  --color-teal-300: #5fdcdf;
+  --color-teal-400: #00c2c7;
+  --color-teal-500: #00adb2;
+
+  /* Positive states → Sky Mint */
+  --color-emerald-50: #f1fcfb;
+  --color-emerald-100: #e1f8f6;
+  --color-emerald-200: #cdf4f1;
+  --color-emerald-300: #b9f0ec;
+  --color-emerald-400: #8fe6e0;
+  --color-emerald-500: #5ed6ce;
+  --color-emerald-600: #2fb8b0;
+  --color-emerald-700: #1f8f89;
+  --color-emerald-800: #176d69;
+  --color-emerald-900: #12524f;
+  --color-green-300: #b9f0ec;
+  --color-green-400: #8fe6e0;
+  --color-green-500: #5ed6ce;
+
+  /* Emergency Coral: critical alerts only */
+  --color-rose-50: #fff2f1;
+  --color-rose-100: #ffe1df;
+  --color-rose-200: #ffc4c0;
+  --color-rose-300: #ffa19b;
+  --color-rose-400: #ff8178;
+  --color-rose-500: #ff685f;
+  --color-rose-600: #f04a41;
+  --color-rose-700: #cc3830;
+  --color-rose-800: #a12d27;
+  --color-rose-900: #7a2420;
+  --color-red-50: #fff2f1;
+  --color-red-100: #ffe1df;
+  --color-red-200: #ffc4c0;
+  --color-red-300: #ffa19b;
+  --color-red-400: #ff8178;
+  --color-red-500: #ff685f;
+  --color-red-600: #f04a41;
+  --color-red-700: #cc3830;
+  --color-red-800: #a12d27;
+  --color-red-900: #7a2420;
+
+  /* Former decorative hues (violet, indigo, sky, blue, pink) → a Steel Blue scale */
+  --color-violet-200: #c4d6e4;
+  --color-violet-300: #a3bfd4;
+  --color-violet-400: #82a8c4;
+  --color-violet-500: #5f8bad;
+  --color-violet-600: #42729a;
+  --color-violet-700: #335c7f;
+  --color-indigo-300: #a3bfd4;
+  --color-indigo-400: #82a8c4;
+  --color-indigo-500: #5f8bad;
+  --color-sky-300: #a3bfd4;
+  --color-sky-400: #82a8c4;
+  --color-sky-500: #5f8bad;
+  --color-blue-300: #a3bfd4;
+  --color-blue-400: #82a8c4;
+  --color-blue-500: #5f8bad;
+  --color-pink-300: #a3bfd4;
+  --color-pink-400: #82a8c4;
+  --color-purple-400: #82a8c4;
+  --color-fuchsia-400: #82a8c4;
 
   --animate-float: float 4s ease-in-out infinite;
   --animate-swing: swing 4s ease-in-out infinite;
@@ -63,17 +148,12 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
-  scrollbar-color: rgb(148 163 184 / 0.25) transparent;
+  scrollbar-color: rgb(181 197 211 / 0.25) transparent;
 }
 
 body {
   @apply bg-void text-slate-200 antialiased;
-  background-image:
-    radial-gradient(1200px 600px at 10% -10%, rgb(34 229 211 / 0.12), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, rgb(139 92 246 / 0.14), transparent 60%),
-    linear-gradient(rgb(148 163 184 / 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(148 163 184 / 0.045) 1px, transparent 1px);
-  background-size: auto, auto, 44px 44px, 44px 44px;
+  background-image: radial-gradient(1200px 600px at 50% -20%, rgb(30 64 89 / 0.55), transparent 70%);
   background-attachment: fixed;
 }
 
@@ -85,7 +165,7 @@ h3 {
 }
 
 ::selection {
-  background: rgb(34 229 211 / 0.35);
+  background: rgb(0 194 199 / 0.35);
 }
 
 select option {
@@ -93,11 +173,11 @@ select option {
 }
 
 @utility card {
-  @apply rounded-2xl border border-line bg-panel/70 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.8)] backdrop-blur-xl;
+  @apply rounded-2xl border border-line bg-panel shadow-[0_1px_2px_rgba(7,28,49,0.4)];
 }
 
 @utility glass {
-  @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+  @apply border border-line bg-white/[0.04] backdrop-blur-xl;
 }
 
 @utility btn {
@@ -105,13 +185,13 @@ select option {
     disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400;
 }
 @utility btn-primary {
-  @apply btn bg-gradient-to-r from-brand-400 to-cyan-400 text-slate-950 shadow-[0_0_28px_-6px_rgba(34,229,211,0.7)] hover:brightness-110;
+  @apply btn bg-brand-400 text-slate-950 hover:bg-brand-300;
 }
 @utility btn-secondary {
   @apply btn border border-line bg-white/[0.04] text-slate-200 hover:border-white/20 hover:bg-white/[0.08];
 }
 @utility btn-danger {
-  @apply btn bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-[0_0_28px_-6px_rgba(244,63,94,0.7)] hover:brightness-110;
+  @apply btn bg-rose-500 text-slate-950 hover:bg-rose-400;
 }
 @utility btn-ghost {
   @apply btn text-slate-300 hover:bg-white/[0.06] hover:text-white;
@@ -125,9 +205,9 @@ select option {
   @apply mb-1.5 block text-sm font-medium text-slate-300;
 }
 
-/* Gradient headline text */
+/* Accent headline text (solid Pulse Teal) */
 @utility glow-text {
-  @apply bg-gradient-to-r from-brand-300 via-cyan-300 to-violet-400 bg-clip-text text-transparent;
+  @apply text-brand-400;
 }
 
 /* Small monospaced HUD caption */
@@ -145,7 +225,7 @@ select option {
     width: 14px;
     height: 14px;
     pointer-events: none;
-    border-color: rgb(34 229 211 / 0.7);
+    border-color: rgb(0 194 199 / 0.45);
   }
   &::before {
     top: -1px;
@@ -169,26 +249,26 @@ select option {
   background: var(--color-panel);
 }
 .leaflet-tooltip {
-  @apply rounded-lg border border-white/10 bg-panel/95 text-slate-100 shadow-lg;
+  @apply rounded-lg border border-line bg-panel text-slate-100 shadow-md;
 }
 .leaflet-tooltip-top::before,
 .leaflet-tooltip-right::before {
   display: none;
 }
 .leaflet-control-attribution {
-  background: rgb(10 17 30 / 0.7) !important;
-  color: #64748b !important;
+  background: rgb(9 36 62 / 0.75) !important;
+  color: #8fa4b7 !important;
 }
 .leaflet-control-attribution a {
-  color: #94a3b8 !important;
+  color: #b5c5d3 !important;
 }
 .leaflet-bar a {
   background: var(--color-panel-2) !important;
-  color: #e2e8f0 !important;
-  border-color: rgb(148 163 184 / 0.2) !important;
+  color: #f5f9fc !important;
+  border-color: rgb(181 197 211 / 0.2) !important;
 }
 .leaflet-tile-pane {
-  filter: brightness(0.62) saturate(0.75) contrast(1.1);
+  filter: brightness(0.7) saturate(0.7) contrast(1.05);
 }
 .map-pin {
   background: none !important;

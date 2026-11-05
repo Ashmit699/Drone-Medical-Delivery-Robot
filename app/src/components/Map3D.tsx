@@ -38,7 +38,7 @@ const SOURCE_LABEL: Record<Source, string> = {
 };
 
 const env = import.meta.env;
-const TEAL = Color.fromCssColorString('#13a7a1');
+const TEAL = Color.fromCssColorString('#00c2c7');
 
 export interface Pick3D extends LatLon {
   groundAltM: number | null;
@@ -97,7 +97,7 @@ function droneIcon(): HTMLCanvasElement {
   const c = document.createElement('canvas');
   c.width = c.height = 48;
   const g = c.getContext('2d')!;
-  g.strokeStyle = g.fillStyle = '#4f46e5';
+  g.strokeStyle = g.fillStyle = '#00c2c7';
   g.lineWidth = 3;
   g.beginPath();
   g.moveTo(14, 14);
@@ -112,7 +112,7 @@ function droneIcon(): HTMLCanvasElement {
     g.fill();
     g.stroke();
   }
-  g.fillStyle = '#4f46e5';
+  g.fillStyle = '#00c2c7';
   g.fillRect(19, 19, 10, 10);
   return c;
 }
@@ -213,11 +213,11 @@ export default function Map3D({
           return [top, Cartesian3.fromDegrees(t.position.lon, t.position.lat, droneGround.current + t.altM - t.payload.ropeM)];
         }, false),
         width: 2,
-        material: Color.fromCssColorString('#334155'),
+        material: Color.fromCssColorString('#f5f9fc'),
       },
     });
     viewer.entities.add({
-      polyline: { positions: new CallbackProperty(() => droneState.current.trail, false), width: 3, material: Color.fromCssColorString('#4f46e5').withAlpha(0.7) },
+      polyline: { positions: new CallbackProperty(() => droneState.current.trail, false), width: 3, material: Color.fromCssColorString('#00c2c7').withAlpha(0.7) },
     });
 
     loadSource(viewer).then(async (s) => {
@@ -285,14 +285,14 @@ export default function Map3D({
       routeEntities.current = [
         viewer.entities.add({ polyline: { positions: [at(hub, hubGround + 1), at(hub, cruise), at(target, cruise), at(target, hover)], width: 4, material: TEAL } }),
         viewer.entities.add({
-          polyline: { positions: [at(target, hover), at(target, tgtGround)], width: 2, material: new PolylineDashMaterialProperty({ color: Color.fromCssColorString('#f59e0b') }) },
+          polyline: { positions: [at(target, hover), at(target, tgtGround)], width: 2, material: new PolylineDashMaterialProperty({ color: Color.fromCssColorString('#b9f0ec') }) },
         }),
         viewer.entities.add({
           wall: { positions: [at(hub, cruise), at(target, cruise)], minimumHeights: [hubGround, tgtGround], material: TEAL.withAlpha(0.15) },
         }),
         viewer.entities.add({
           position: at(target, tgtGround + 0.5),
-          point: { pixelSize: 12, color: Color.fromCssColorString('#0b8f8a'), outlineColor: Color.WHITE, outlineWidth: 3, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+          point: { pixelSize: 12, color: Color.fromCssColorString('#00969a'), outlineColor: Color.WHITE, outlineWidth: 3, disableDepthTestDistance: Number.POSITIVE_INFINITY },
           label: {
             text: 'Drop here',
             font: '700 13px Inter, sans-serif',

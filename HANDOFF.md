@@ -153,7 +153,7 @@ npm run dev        # app http://localhost:5173 , API http://localhost:4000
 | Var | Default | Meaning |
 |-----|---------|---------|
 | `API_PORT` | 4000 | API port. **Not `PORT`**: the preview launcher sets PORT=5173 and caused a clash. |
-| `HUB_LAT` / `HUB_LON` | 28.6139 / 77.209 (New Delhi) | Drone hub. Set it to the school, or to SITL's position for simulator demos. |
+| `HUB_LAT` / `HUB_LON` | 28.645189 / 77.381497 (school, Judges Enclave, Indirapuram, Ghaziabad) | Drone hub. Override with SITL's position for simulator demos. |
 | `SERVICE_RADIUS_KM` | 1.3 | Delivery radius |
 | `SIM_SPEED` | 4 | Built-in simulator speed multiplier |
 | `PAYLOAD_MODE` | `esp32` (servo trigger) | `ardupilot-winch` uses ArduPilot's DO_WINCH / DO_GRIPPER instead (see `server/src/drone/mission.ts`) |

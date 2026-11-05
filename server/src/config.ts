@@ -7,9 +7,9 @@ export const config = {
   dbPath: process.env.DB_PATH ?? fileURLToPath(new URL('../data/medidrop.db', import.meta.url)),
 
   hub: {
-    name: 'MediDrop Hub · City Hospital',
-    lat: Number(process.env.HUB_LAT ?? 28.6139),
-    lon: Number(process.env.HUB_LON ?? 77.209),
+    name: 'MediDrop Hub · Indirapuram',
+    lat: Number(process.env.HUB_LAT ?? 28.645189),
+    lon: Number(process.env.HUB_LON ?? 77.381497),
   },
   // Small exhibition demo zone: a 1.3 km radius circle (~5.3 km²) inside a 2.4 × 2.4 km square
   // (~5.8 km²). The square is what you'd draw on SkyFi to buy a Vantor 3D model of the area.

@@ -24,7 +24,7 @@ The backend connects to `DRONE_BRIDGE_URL` (default `ws://127.0.0.1:8765?drone=<
 { "type": "hello", "droneId": "MDR-01" }
 { "type": "start_mission", "plan": {
     "missionId": 12, "orderId": 1042,
-    "home":   { "lat": 28.6139, "lon": 77.2090 },
+    "home":   { "lat": 28.645189, "lon": 77.381497 },
     "target": { "lat": 28.6220, "lon": 77.2150 },
     "cruiseAltM": 25, "dropAltM": 4,
     "mission": { "items": [ /* ArduCopter mission items, see mission.ts */ ], "clearanceSeq": 5, "afterClearanceSeq": 6, ... } } }
@@ -36,7 +36,7 @@ The backend connects to `DRONE_BRIDGE_URL` (default `ws://127.0.0.1:8765?drone=<
 ```jsonc
 // 2–5 Hz. Any subset of DroneTelemetry fields (types.ts); missing fields keep their last value.
 { "type": "telemetry", "telemetry": {
-    "armed": true, "mode": "AUTO", "position": { "lat": 28.615, "lon": 77.21 },
+    "armed": true, "mode": "AUTO", "position": { "lat": 28.6465, "lon": 77.3825 },
     "altM": 24.8, "groundSpeedMs": 11.6, "headingDeg": 34, "batteryPct": 81, "batteryV": 15.9,
     "gpsSats": 14, "missionId": 12, "markerErrorCm": null,
     "payload": { "gripper": "closed", "winch": "homed", "ropeM": 0, "loaded": true } } }

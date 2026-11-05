@@ -16,7 +16,7 @@ from pymavlink import mavutil
 mav = mavutil.mavlink
 SPEED = 10  # time multiplier
 m = mavutil.mavlink_connection(sys.argv[1] if len(sys.argv) > 1 else "udpout:127.0.0.1:14560", source_system=1, source_component=1)
-HOME = (28.6139, 77.209)
+HOME = (28.645189, 77.381497)
 st = dict(armed=False, mode=0, lat=HOME[0], lon=HOME[1], alt=0.0, seq=0, items=[], expect=0, count=0, hold_until=None, servo={})
 log = lambda *a: print("[mock]", *a, flush=True)
 

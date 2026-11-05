@@ -101,7 +101,7 @@ In the app: **Ops → Fleet → MDR-01 → Radio bridge**. The link should say *
 ```bash
 git clone --recurse-submodules https://github.com/ArduPilot/ardupilot.git
 cd ardupilot && ./waf configure --board sitl && ./waf copter
-build/sitl/bin/arducopter --model + --speedup 1 --defaults Tools/autotest/default_params/copter.parm -I0 --home 28.6139,77.209,214,0
+build/sitl/bin/arducopter --model + --speedup 1 --defaults Tools/autotest/default_params/copter.parm -I0 --home 28.645189,77.381497,205,0
 # then: python bridge.py --mavlink tcp:127.0.0.1:5760
 ```
 

@@ -135,7 +135,7 @@ export default function Technology() {
         </ol>
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {[
-            [Radio, 'GPS to the area', 'Autopilot flies to the drop point at 25 m (~2–3 m accuracy).'],
+            [Radio, 'GPS to the area', 'Autopilot flies to the drop point at 60 m, above the tallest towers (~2–3 m accuracy).'],
             [Cpu, 'Camera to the spot', 'The camera sees the ArUco marker and nudges the drone to within ~20 cm.'],
             [Anchor, 'Rope to the ground', 'The winch lowers at 0.25 m/s. Slack means touchdown, then the hooks open and it reels in.'],
           ].map(([Icon, t, d]) => {

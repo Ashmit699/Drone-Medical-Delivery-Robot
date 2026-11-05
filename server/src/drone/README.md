@@ -26,7 +26,7 @@ The backend connects to `DRONE_BRIDGE_URL` (default `ws://127.0.0.1:8765?drone=<
     "missionId": 12, "orderId": 1042,
     "home":   { "lat": 28.645189, "lon": 77.381497 },
     "target": { "lat": 28.6220, "lon": 77.2150 },
-    "cruiseAltM": 25, "dropAltM": 4,
+    "cruiseAltM": 60, "dropAltM": 4,
     "mission": { "items": [ /* ArduCopter mission items, see mission.ts */ ], "clearanceSeq": 5, "afterClearanceSeq": 6, ... } } }
 { "type": "command", "command": { "type": "CLEARANCE" | "PAUSE" | "RESUME" | "RTL" } }
 ```

@@ -27,7 +27,7 @@ What we took from https://app.skyfi.com/3d/vantor-3dsm-bundle:
 ## 7.3 Features to build
 
 1. **3D drop picker (checkout):** click the 3D ground to place the marker. Read the **ground height** at that point (Cesium `sampleHeightMostDetailed`). This feeds the real drop altitude to the mission plan, since the destination may not be at the same height as the hub.
-2. **Route preview:** a 3D polyline hub → climb to 25 m → cruise → descend to the 4 m hover → rope to the ground. An **altitude profile** chart shows it from the side.
+2. **Route preview:** a 3D polyline hub → climb to 60 m → cruise → descend to the 4 m hover → rope to the ground. An **altitude profile** chart shows it from the side.
 3. **Obstacle check:** sample building/terrain heights along the route. If anything is closer than 10 m below cruise altitude, warn the user and suggest a higher cruise altitude. (The server re-checks before dispatch.)
 4. **Live cost panel** (like SkyFi's area → price): distance, flight time, battery use %, delivery fee. Proposed fee = priority base + ₹8/km beyond 1 km (emergency still free). This needs a small change in `server/src/orders.ts → quote()`.
 5. **3D tracking:** the drone model moves along the route in the tracking page and the ops monitor, using the same live telemetry (with altitude now visible).

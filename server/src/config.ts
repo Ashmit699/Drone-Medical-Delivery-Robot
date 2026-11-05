@@ -24,7 +24,9 @@ export const config = {
   usableFlightS: 600,
 
   flight: {
-    cruiseAltM: 25,
+    // 60 m clears Indirapuram's 40–60 m residential towers with margin (India's green-zone limit is 120 m).
+    // The return leg also flies at this height (see drone/mission.ts and RTL_ALT in the bridge).
+    cruiseAltM: 60,
     dropAltM: 4,
     // Every flight is an emergency, so the drone flies at its top safe cruise speed
     // (ArduCopter WPNAV_SPEED 1500 cm/s; an S500 with 920KV motors tops out around 15–17 m/s).

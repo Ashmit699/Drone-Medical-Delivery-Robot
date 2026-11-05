@@ -199,7 +199,7 @@ With none set, the 3D view uses free satellite imagery on a flat globe. This was
 - **Max payload** is still **300 g**.
 
 **Other**
-- Flight: cruise 25 m, drop height 4 m, 12 m/s, usable flight time about 600 s (the quote shows battery use %).
+- Flight: cruise **60 m** (clears Indirapuram's towers), drop height 4 m, 15 m/s, usable flight time about 600 s (the quote shows battery use %).
 - Clearance timeout: 180 s waiting for "Area clear", then the drone aborts.
 - Order status: `placed → approved → in_flight → delivered`, or `rejected`, `cancelled` or `failed`.
 
@@ -320,7 +320,7 @@ adapter. Phase reports come back through `handlePhase`:
 | seq | Item | Phase shown |
 |-----|------|-------------|
 | 0 | Home | |
-| 1 | NAV_TAKEOFF 25 m | takeoff |
+| 1 | NAV_TAKEOFF 60 m | takeoff |
 | 2 | DO_CHANGE_SPEED 12 m/s | |
 | 3 | NAV_WAYPOINT, cruise over the target | cruise |
 | 4 | NAV_WAYPOINT, descend to 4 m | approach |
@@ -328,7 +328,8 @@ adapter. Phase reports come back through `handlePhase`:
 | 6 | DO_SET_SERVO 9 → **1900** (tell ESP32: drop) | |
 | 7 | NAV_LOITER_TIME (lower + release + retract time) | lowering |
 | 8 | DO_SET_SERVO 9 → **1500** (idle) | |
-| 9 | NAV_RETURN_TO_LAUNCH | returning |
+| 9 | NAV_WAYPOINT, climb back to 60 m above the drop zone | returning |
+| 10 | NAV_RETURN_TO_LAUNCH (bridge sets `RTL_ALT` to cruise height first) | returning |
 
 Servo PWM codes to the ESP32: 1900 = drop, 1500 = idle, **1100 = abort** (reel in).
 The other mode uses ArduPilot's own DO_WINCH / DO_GRIPPER commands.
@@ -339,6 +340,8 @@ Key ArduPilot facts we learned the hard way:
 - **Upload protocol:** MISSION_CLEAR_ALL → MISSION_COUNT → answer each MISSION_REQUEST_INT with MISSION_ITEM_INT → MISSION_ACK.
 - **Launch sequence:** DO_SET_MODE GUIDED (wait for ACK, then confirm through the heartbeat) → arm → NAV_TAKEOFF → mode **AUTO**.
 - **"Area clear"** sends MISSION_SET_CURRENT to the item after the loiter (seq 6), so the drone continues.
+- **Never return low:** after the drop the mission climbs back to cruise height, and the bridge sets `RTL_ALT` to cruise height before take-off. (Found in SITL on 5 Nov 2026: RTL at the default 15 m flew into ground 15 m above the hub.)
+- **Pre-flight terrain check:** the bridge asks ArduPilot for ground height along the route and refuses to launch with less than 20 m clearance at cruise height (skipped with a warning if the FC has no terrain data).
 - The bridge sends a **GCS heartbeat at 1 Hz**, so `FS_GCS_ENABLE` failsafe works.
 
 Full research, parameters and Mission Planner workflow are in [`docs/08-ardupilot-auto-missions.md`](docs/08-ardupilot-auto-missions.md).

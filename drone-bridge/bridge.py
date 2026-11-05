@@ -37,7 +37,9 @@ INT_FRAME = {mav.MAV_FRAME_GLOBAL: mav.MAV_FRAME_GLOBAL_INT, mav.MAV_FRAME_GLOBA
 # App phases in flight order; a flight only ever moves forward through them.
 PHASE_ORDER = ["preflight", "takeoff", "cruise", "approach", "aligning", "awaiting_clearance", "lowering",
                "releasing", "retracting", "returning", "landing", "completed", "aborted"]
-INBOX_MSGS = {"MISSION_REQUEST_INT", "MISSION_REQUEST", "MISSION_ACK", "COMMAND_ACK", "AUTOPILOT_VERSION"}
+INBOX_MSGS = {"MISSION_REQUEST_INT", "MISSION_REQUEST", "MISSION_ACK", "COMMAND_ACK", "AUTOPILOT_VERSION", "PARAM_VALUE",
+              "TERRAIN_REPORT"}
+MIN_CLEARANCE_M = 20  # refuse to launch if the route passes closer than this to the ground at cruise height
 
 
 def distance_m(lat1, lon1, lat2, lon2):
@@ -162,6 +164,27 @@ class Vehicle:
     def set_current(self, seq):
         self.m.mav.mission_set_current_send(self.m.target_system, self.m.target_component, seq)
 
+    def set_param(self, name, value, timeout=3):
+        """PARAM_SET, confirmed by the PARAM_VALUE echo. Returns False if the FC never confirms."""
+        self._drain()
+        self.m.mav.param_set_send(self.m.target_system, self.m.target_component, name.encode(), float(value),
+                                  mav.MAV_PARAM_TYPE_REAL32)
+        pv = self._wait({"PARAM_VALUE"}, timeout, lambda p: p.param_id.rstrip("\x00") == name)
+        return pv is not None and abs(pv.param_value - value) < 0.5
+
+    def terrain_heights(self, points, timeout=4):
+        """Ground height (m above sea level) at each point from the FC's terrain database, or None if it has none."""
+        heights = []
+        for lat, lon in points:
+            self._drain()
+            self.m.mav.terrain_check_send(int(lat * 1e7), int(lon * 1e7))
+            r = self._wait({"TERRAIN_REPORT"}, timeout, lambda t: t.pending == 0
+                           and abs(t.lat / 1e7 - lat) < 1e-5 and abs(t.lon / 1e7 - lon) < 1e-5)
+            if r is None:
+                return None
+            heights.append(r.terrain_height)
+        return heights
+
     def set_servo(self, servo, pwm):
         self.command(mav.MAV_CMD_DO_SET_SERVO, servo, pwm)
 
@@ -208,6 +231,10 @@ class Flight:
             raise RuntimeError("Drone is already armed")
         if s["fix"] < 3:
             raise RuntimeError(f"No 3D GPS fix (fix type {s['fix']}, {s['sats']} satellites)")
+        self.check_route_clearance()
+        # Any RTL (mission end, operator abort, failsafe) returns at cruise height, not ArduPilot's 15 m default.
+        if not self.v.set_param("RTL_ALT", self.plan["cruiseAltM"] * 100):
+            print("[bridge] warning: could not set RTL_ALT; RTL may return lower than cruise altitude")
         self.v.upload(self.items)
         self.v.set_current(1)  # start at the takeoff item, whatever the previous mission left behind
         self.v.set_mode("GUIDED")
@@ -220,6 +247,21 @@ class Flight:
         # Mission item 1 (NAV_TAKEOFF) completes as soon as we reach cruise altitude in AUTO.
         self.v.set_mode("AUTO")
         self.started = True
+
+    def check_route_clearance(self):
+        """Refuse to launch if raised ground or buildings in the terrain data sit too close to the route."""
+        home, target, cruise = self.plan["home"], self.plan["target"], self.plan["cruiseAltM"]
+        pts = [(home["lat"] + (target["lat"] - home["lat"]) * i / 10, home["lon"] + (target["lon"] - home["lon"]) * i / 10)
+               for i in range(11)]
+        heights = self.v.terrain_heights(pts)
+        if heights is None:
+            print("[bridge] warning: no terrain data from the flight controller; route clearance not checked")
+            return
+        highest = max(heights) - heights[0]  # relative to the hub's ground
+        if cruise - highest < MIN_CLEARANCE_M:
+            raise RuntimeError(f"Route crosses ground {highest:.0f} m above the hub: only {cruise - highest:.0f} m "
+                               f"clearance at {cruise} m cruise (need {MIN_CLEARANCE_M} m). Raise the cruise altitude")
+        print(f"[bridge] route clearance OK: highest ground +{highest:.0f} m, {cruise - highest:.0f} m below cruise")
 
     def tick(self):
         """Called a few times per second: map mission progress + mode to app phases."""

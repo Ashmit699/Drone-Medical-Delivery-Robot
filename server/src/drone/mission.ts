@@ -90,7 +90,10 @@ export function buildMission(plan: Omit<MissionPlan, 'mission'>, mode: PayloadMo
     add(MAV_CMD.NAV_LOITER_TIME, `Hold ${retractS} s while reeling in`, { ...at(target, dropAltM), params: [retractS, 0, 0, 0], phase: 'retracting' });
     add(MAV_CMD.DO_GRIPPER, 'Gripper: close', { params: [1, 1, 0, 0] });
   }
-  add(MAV_CMD.NAV_RETURN_TO_LAUNCH, 'Return to hub and land', { phase: 'returning' });
+  // Climb back to cruise height before heading home: RTL on its own only climbs to RTL_ALT
+  // (15 m by default), which flew into raised ground between the drop zone and the hub in SITL.
+  add(MAV_CMD.NAV_WAYPOINT, `Climb to ${cruiseAltM} m before heading home`, { ...at(target, cruiseAltM), phase: 'returning' });
+  add(MAV_CMD.NAV_RETURN_TO_LAUNCH, `Return to hub at ${cruiseAltM} m and land`, { phase: 'returning' });
 
   return {
     items: items.map((it, seq) => ({ ...it, seq })),

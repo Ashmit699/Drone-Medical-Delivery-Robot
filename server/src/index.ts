@@ -44,6 +44,6 @@ server.listen(config.port, () => {
   const lan = Object.values(networkInterfaces())
     .flat()
     .find((i) => i && i.family === 'IPv4' && !i.internal)?.address;
-  console.log(`MediDrop API on http://localhost:${config.port}${lan ? `  (LAN: http://${lan}:${config.port})` : ''}`);
+  console.log(`Aerolift API on http://localhost:${config.port}${lan ? `  (LAN: http://${lan}:${config.port})` : ''}`);
   console.log(`Simulator speed ×${config.simSpeed}. Hub at ${config.hub.lat}, ${config.hub.lon}`);
 });

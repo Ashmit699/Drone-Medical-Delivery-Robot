@@ -101,7 +101,7 @@ export default function Home() {
               <span className="glow-text">at your door in minutes.</span>
             </h1>
             <p className="mt-5 max-w-lg text-lg text-slate-400">
-              When every minute counts, a MediDrop drone flies the medicine you need straight to you. Members never pay per order: it’s all covered by one small monthly plan.
+              When every minute counts, a Aerolift drone flies the medicine you need straight to you. Members never pay per order: it’s all covered by one small monthly plan.
             </p>
             <HeroSearch />
             <div className="mt-6 flex flex-wrap gap-3">
@@ -236,7 +236,7 @@ export default function Home() {
         </ol>
         <div className="mt-6 grid gap-3 rounded-2xl border border-line bg-panel shadow-[0_1px_3px_rgba(9,36,62,0.07),0_12px_32px_-14px_rgba(9,36,62,0.22)] p-5 text-sm sm:grid-cols-2">
           <div className="flex items-center gap-3"><span className="w-24 text-slate-400">By road</span><div className="h-2 flex-1 rounded-full bg-slate-600" /><b className="w-16 text-right text-white">25 min</b></div>
-          <div className="flex items-center gap-3"><span className="w-24 text-slate-400">By MediDrop</span><div className="h-2 w-[18%] rounded-full bg-gradient-to-r from-brand-400 to-emerald-400" /><span className="flex-1" /><b className="w-16 text-right text-brand-300">~4 min</b></div>
+          <div className="flex items-center gap-3"><span className="w-24 text-slate-400">By Aerolift</span><div className="h-2 w-[18%] rounded-full bg-gradient-to-r from-brand-400 to-emerald-400" /><span className="flex-1" /><b className="w-16 text-right text-brand-300">~4 min</b></div>
           <p className="text-xs text-slate-500 sm:col-span-2">Typical 2 km trip in city traffic vs a drone flying straight at {speedKmh} km/h.</p>
         </div>
       </section>
@@ -248,7 +248,7 @@ export default function Home() {
             <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.4fr]">
               <div>
                 <ShieldCheck className="h-10 w-10 text-emerald-300" />
-                <h2 className="mt-4 text-3xl font-bold text-white">MediDrop Care: insurance for emergencies</h2>
+                <h2 className="mt-4 text-3xl font-bold text-white">Aerolift Care: insurance for emergencies</h2>
                 <p className="mt-2 text-slate-400">One small monthly plan. Every emergency delivery, supplies and flight included, is free whenever you need it.</p>
                 <Link to="/plans" className="btn-primary mt-6">Compare plans <ArrowRight className="h-4 w-4" /></Link>
               </div>

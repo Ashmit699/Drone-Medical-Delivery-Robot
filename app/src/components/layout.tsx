@@ -40,7 +40,7 @@ export function Logo({ compact }: { compact?: boolean }) {
       {!compact && (
         <span className="leading-none">
           <span className="block font-[family-name:var(--font-display)] text-lg font-bold tracking-tight text-white">
-            Medi<span className="glow-text">Drop</span>
+            Aero<span className="glow-text">lift</span>
           </span>
           <span className="hud mt-0.5 block text-[9px] text-brand-400/80">Aero-medical network</span>
         </span>
@@ -255,7 +255,7 @@ function CartDrawer() {
               <span className="text-sm text-slate-400">Subtotal</span>
               <span className="font-mono text-xl font-bold text-white">{rupees(totals.subtotal)}</span>
             </div>
-            <p className="text-xs text-slate-500">Members pay nothing per order: supplies and the emergency flight are covered by your MediDrop Care plan.</p>
+            <p className="text-xs text-slate-500">Members pay nothing per order: supplies and the emergency flight are covered by your Aerolift Care plan.</p>
             <div className="grid grid-cols-2 gap-2">
               <Link to="/cart" className="btn-secondary">
                 View cart
@@ -405,7 +405,7 @@ function Footer() {
             <Phone className="h-5 w-5 text-rose-300" />
             <div>
               <div className="hud text-rose-300/80">24×7 relief hotline</div>
-              <div className="font-mono text-sm font-semibold text-white">1800-MEDI-DROP</div>
+              <div className="font-mono text-sm font-semibold text-white">1800-AERO-LIFT</div>
             </div>
           </div>
         </div>
@@ -415,7 +415,7 @@ function Footer() {
             <li><Link to="/shop" className="hover:text-white">Supply catalogue</Link></li>
             <li><Link to="/live" className="hover:text-white">Live airspace</Link></li>
             <li><Link to="/mission-control" className="hover:text-white">Mission control screen</Link></li>
-            <li><Link to="/plans" className="hover:text-white">MediDrop Care plans</Link></li>
+            <li><Link to="/plans" className="hover:text-white">Aerolift Care plans</Link></li>
             <li><Link to="/welfare" className="hover:text-white">Welfare discount</Link></li>
             <li><Link to="/technology" className="hover:text-white">How the drone works</Link></li>
           </ul>
@@ -431,7 +431,7 @@ function Footer() {
         </div>
       </div>
       <div className="border-t border-white/[0.06] py-5 text-center font-mono text-[11px] text-slate-600">
-        MEDIDROP // EXHIBITION PROTOTYPE // DRONE FLIGHTS ARE SIMULATED IN THIS DEMO
+        AEROLIFT // EXHIBITION PROTOTYPE // DRONE FLIGHTS ARE SIMULATED IN THIS DEMO
       </div>
     </footer>
   );

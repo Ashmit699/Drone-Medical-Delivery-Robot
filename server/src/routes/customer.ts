@@ -152,7 +152,7 @@ customerRoutes.delete('/welfare', (req, res) => {
   res.status(204).end();
 });
 
-// ---------- MediDrop Care plan (subscription) ----------
+// ---------- Aerolift Care plan (subscription) ----------
 
 const planState = (userId: number) => ({
   current: activeSubscription(userId),

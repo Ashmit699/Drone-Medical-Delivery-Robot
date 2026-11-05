@@ -1,5 +1,5 @@
 """
-MediDrop drone bridge: turns app orders into ArduCopter AUTO missions and flies them.
+Aerolift drone bridge: turns app orders into ArduCopter AUTO missions and flies them.
 
     app backend (Node)  <--WebSocket JSON-->  this bridge  <--MAVLink (SiK radio)-->  CrossFlight FC
                                                    \\--UDP--> Mission Planner / QGC (optional, monitoring)

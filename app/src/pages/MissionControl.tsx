@@ -207,7 +207,7 @@ export default function MissionControl() {
         <Link to="/" className="flex items-center gap-3">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-violet-500 font-bold text-navy">+</span>
           <span className="font-[family-name:var(--font-display)] text-xl font-bold text-white">
-            Medi<span className="glow-text">Drop</span>
+            Aero<span className="glow-text">lift</span>
           </span>
         </Link>
         <span className="hud text-sm text-brand-400">// Mission control</span>

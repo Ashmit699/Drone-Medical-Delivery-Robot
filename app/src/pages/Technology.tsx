@@ -57,7 +57,7 @@ export default function Technology() {
         <h2 className="text-xl font-bold">System architecture</h2>
         <p className="mt-1 text-sm text-slate-400">Each layer only talks to its neighbour, so any one piece can be swapped or tested on its own.</p>
         <div className="mt-8 flex flex-col items-stretch md:flex-row md:items-center">
-          <Box icon={<Smartphone className="h-5 w-5" />} title="MediDrop app" sub="React · phone + laptop" tone="border-brand-500/30 bg-brand-500/10" />
+          <Box icon={<Smartphone className="h-5 w-5" />} title="Aerolift app" sub="React · phone + laptop" tone="border-brand-500/30 bg-brand-500/10" />
           <Link_ label="HTTPS + live socket" />
           <Box icon={<Server className="h-5 w-5" />} title="App backend" sub="Node + SQLite · orders, fleet" tone="border-brand-500/30 bg-brand-500/10" />
           <Link_ label="DroneAdapter" />

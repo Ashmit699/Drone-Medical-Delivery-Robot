@@ -107,7 +107,7 @@ export default function Welfare() {
         <div className="hud mt-6 text-violet-300">Direct benefit pricing</div>
         <h1 className="mt-2 text-4xl font-bold text-white">Welfare subsidy</h1>
         <p className="mx-auto mt-3 max-w-xl text-slate-400">
-          Families below the poverty line (BPL), Scheduled Castes (SC), Scheduled Tribes (ST) and the Economically Weaker Section (EWS) get <b className="text-white">30–50% off their monthly MediDrop Care plan</b>{' '}
+          Families below the poverty line (BPL), Scheduled Castes (SC), Scheduled Tribes (ST) and the Economically Weaker Section (EWS) get <b className="text-white">30–50% off their monthly Aerolift Care plan</b>{' '}
           once an operator verifies the document. Every emergency delivery stays free.
         </p>
       </div>

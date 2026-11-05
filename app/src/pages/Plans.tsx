@@ -58,7 +58,7 @@ export default function Plans() {
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-emerald-400/30 bg-emerald-500/10">
           <ShieldCheck className="h-8 w-8 text-emerald-300" />
         </div>
-        <div className="hud mt-6 text-emerald-300">MediDrop Care</div>
+        <div className="hud mt-6 text-emerald-300">Aerolift Care</div>
         <h1 className="mt-2 text-4xl font-bold text-white sm:text-5xl">Pay a little every month. Never pay in an emergency.</h1>
         <p className="mt-4 text-slate-400">
           Like insurance for medical deliveries: when someone at home needs medicine urgently, an emergency drone flies it to you at full speed, supplies and flight included, for free.
@@ -146,7 +146,7 @@ export default function Plans() {
         ))}
       </div>
 
-      <Modal open={!!buying} onClose={() => setBuying(null)} title={`MediDrop Care ${buying?.name ?? ''}`}>
+      <Modal open={!!buying} onClose={() => setBuying(null)} title={`Aerolift Care ${buying?.name ?? ''}`}>
         {buying && (
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-xl bg-white/[0.04] p-4">

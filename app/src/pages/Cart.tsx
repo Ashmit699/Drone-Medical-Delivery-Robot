@@ -71,7 +71,7 @@ export default function Cart() {
               <dd className="font-medium">{rupees(totals.subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-slate-400">Covered by MediDrop Care</dt>
+              <dt className="text-slate-400">Covered by Aerolift Care</dt>
               <dd className="font-mono text-emerald-400">−{rupees(totals.subtotal)}</dd>
             </div>
             <div className="flex justify-between">

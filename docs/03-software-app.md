@@ -37,7 +37,7 @@ Palette: medical teal `#0E9F9A` as primary, white/neutral surfaces, red `#DC2626
 
 ```
 ┌───────────────────────┐  ┌───────────────────────┐  ┌───────────────────────┐
-│ MediDrop      👤      │  │ ← New request         │  │ ← Drop location       │
+│ Aerolift      👤      │  │ ← New request         │  │ ← Drop location       │
 │                       │  │ Items        120/300 g│  │ ┌───────────────────┐ │
 │ ┌───────────────────┐ │  │ ☑ First-aid kit  150g │  │ │      [ MAP ]      │ │
 │ │ ● In flight       │ │  │ ☐ ORS sachets ×5  60g │  │ │        📍         │ │
@@ -74,7 +74,7 @@ the printed marker.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────┐
-│ MediDrop Ops   Orders │ Flight │ Inventory │ Logs │ Settings     ● Link 0.2s  🔋 82%│
+│ Aerolift Ops   Orders │ Flight │ Inventory │ Logs │ Settings     ● Link 0.2s  🔋 82%│
 ├────────────────────┬─────────────────────────────────────────┬───────────────────┤
 │ ORDER QUEUE        │                                         │ HUD               │
 │ 🔴 #104 Emergency  │              [ LIVE MAP ]               │ Mode   AUTO       │

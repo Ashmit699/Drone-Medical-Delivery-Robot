@@ -1,4 +1,4 @@
-# MediDrop — Drone Medical Delivery Robot
+# Aerolift — Drone Medical Delivery Robot
 
 A quadcopter that flies medical supplies to a requested location, **hovers precisely over a
 marked drop zone, and lowers the package on a winch-driven rope with a 2-hook servo gripper**

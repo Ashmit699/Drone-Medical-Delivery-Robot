@@ -15,7 +15,7 @@ const Map3D = lazy(() => import('../components/Map3D'));
 
 const SAFETY = [
   'Open sky above the spot: no trees, wires or roofs within 3 m',
-  'Printed MediDrop marker placed flat on the ground (or a clear open patch)',
+  'Printed Aerolift marker placed flat on the ground (or a clear open patch)',
   'I will keep people and animals 5 m away while the package is lowered',
 ];
 
@@ -111,7 +111,7 @@ export default function Checkout() {
     pin && (!label.trim() || line.trim().length < 3) && 'address name + landmark',
     !safetyDone && 'drop-zone safety checks',
     !rxDone && 'prescription photo',
-    quote && !quote.plan && 'an active MediDrop Care plan',
+    quote && !quote.plan && 'an active Aerolift Care plan',
   ].filter(Boolean) as string[];
 
   const placeOrder = async () => {
@@ -144,7 +144,7 @@ export default function Checkout() {
       <h1 className="flex items-center gap-3 text-3xl font-extrabold tracking-tight">
         <Siren className="h-7 w-7 text-red-400" /> Send emergency drone
       </h1>
-      <p className="mt-1 text-sm text-slate-400">Every MediDrop flight is an emergency flight: auto-approved, first in the queue, flown at full speed.</p>
+      <p className="mt-1 text-sm text-slate-400">Every Aerolift flight is an emergency flight: auto-approved, first in the queue, flown at full speed.</p>
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
           <Section n={1} title="Where should we drop it?" done={locationDone}>
@@ -288,7 +288,7 @@ export default function Checkout() {
               <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
                 <ShieldCheck className="h-8 w-8 text-emerald-300" />
                 <div className="min-w-[220px] flex-1">
-                  <div className="font-semibold text-white">MediDrop Care {quote.plan.name} · active</div>
+                  <div className="font-semibold text-white">Aerolift Care {quote.plan.name} · active</div>
                   <div className="text-xs text-slate-300">
                     Nothing to pay. Supplies up to {rupees(quote.plan.coverPerDelivery)} and the flight are covered.{' '}
                     {quote.plan.remaining == null ? 'Unlimited deliveries.' : `${quote.plan.remaining} of ${quote.plan.deliveriesPerMonth} free deliveries left this month.`}
@@ -298,7 +298,7 @@ export default function Checkout() {
               </div>
             ) : (
               <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
-                You don’t have an active plan yet. A MediDrop Care plan from ₹99/month makes every emergency delivery free.
+                You don’t have an active plan yet. A Aerolift Care plan from ₹99/month makes every emergency delivery free.
                 <Link to="/plans?next=/checkout" className="btn-primary mt-3 w-fit">Choose a plan</Link>
               </div>
             )}

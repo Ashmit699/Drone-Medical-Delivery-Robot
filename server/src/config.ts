@@ -7,7 +7,7 @@ export const config = {
   dbPath: process.env.DB_PATH ?? fileURLToPath(new URL('../data/medidrop.db', import.meta.url)),
 
   hub: {
-    name: 'MediDrop Hub · Indirapuram',
+    name: 'Aerolift Hub · Indirapuram',
     lat: Number(process.env.HUB_LAT ?? 28.645189),
     lon: Number(process.env.HUB_LON ?? 77.381497),
   },
@@ -18,7 +18,7 @@ export const config = {
 
   // Must match what the real drone + gripper can lift (see docs/02-hardware-electronics.md).
   maxPayloadG: 300,
-  // MediDrop is emergency-only: no payment per order. Members pay a monthly plan (like insurance)
+  // Aerolift is emergency-only: no payment per order. Members pay a monthly plan (like insurance)
   // and every emergency delivery, supplies included, is free for them. See subscription.ts.
   // Rough battery model for the quote: ~10 min of usable flight on a 4S pack with payload.
   usableFlightS: 600,

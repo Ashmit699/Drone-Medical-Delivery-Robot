@@ -1,4 +1,4 @@
-// Welfare subsidy: BPL / SC / ST / EWS families get a discount on their monthly MediDrop Care
+// Welfare subsidy: BPL / SC / ST / EWS families get a discount on their monthly Aerolift Care
 // plan once an operator has checked their document.
 import { one } from './db';
 

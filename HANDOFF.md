@@ -1,4 +1,4 @@
-# MediDrop: full project handoff (A to Z)
+# Aerolift: full project handoff (A to Z)
 
 This file hands the project to a new AI coding agent (Antigravity) or a new teammate. It covers
 everything decided and built so far: the goal, the hardware, the decisions, the code, how to run it,
@@ -12,7 +12,7 @@ Read it top to bottom once. Then read [`README.md`](README.md) and the documents
 
 | | |
 |---|---|
-| Project | **MediDrop**: a drone medical delivery robot (school exhibition project) |
+| Project | **Aerolift**: a drone medical delivery robot (school exhibition project) |
 | Team | 3 people, about a 5-day build for the exhibition |
 | Repository | https://github.com/Ashmit699/Drone-Medical-Delivery-Robot (branch `main`; the owner pushes straight to `main`) |
 | Local path | `~/Desktop/School project/Drone Medical Delivery Robot` (Mac, Apple Silicon, Homebrew Node 26) |
@@ -183,7 +183,7 @@ With none set, the 3D view uses free satellite imagery on a flat globe. This was
 **Business model: emergency-only, paid by subscription** (changed 5 Nov 2026 at the owner's request)
 - **Every order is an emergency.** There is no standard or express option. Orders are **auto-approved** unless an item needs a prescription.
 - The drone always flies at **top speed**: `config.flight.cruiseSpeedMs` = **15 m/s** (54 km/h, ArduCopter WPNAV_SPEED 1500).
-- **No payment per order.** Customers pay a monthly **MediDrop Care plan**, like insurance. Every emergency delivery, supplies included, is then free (`server/src/subscription.ts`, `subscriptions` table, page `/plans`).
+- **No payment per order.** Customers pay a monthly **Aerolift Care plan**, like insurance. Every emergency delivery, supplies included, is then free (`server/src/subscription.ts`, `subscriptions` table, page `/plans`).
 
 | Plan | Price | People | Free deliveries | Supplies covered per delivery |
 |------|-------|--------|-----------------|-------------------------------|
@@ -209,7 +209,7 @@ With none set, the 3D view uses free satellite imagery on a flat globe. This was
 | Route | Page |
 |-------|------|
 | `/` | Home, styled like a normal pharmacy business: hero with search, Order now / SOS / Plans buttons, health-campaign ads (diabetes, heart, mother & baby), categories, most-ordered products, how it works, road vs drone time, plans teaser, reviews. Operator-style info (airspace, weather, fleet) moved behind a **Live operations** button that opens `/live`. |
-| `/plans` | MediDrop Care plans: compare, subscribe (demo payment), switch or cancel, current usage |
+| `/plans` | Aerolift Care plans: compare, subscribe (demo payment), switch or cancel, current usage |
 | `/features`, `/technology` | Feature showcase; technology explainer (mentions TS100, ArduPilot) |
 | `/live` | Live airspace: radar, fleet, weather conditions (GO / CAUTION / NO-GO) |
 | `/shop`, `/shop/:slug` | 30 products incl. a "Relief & Survival" category, badges, search (`?q=` synced with the navbar) |

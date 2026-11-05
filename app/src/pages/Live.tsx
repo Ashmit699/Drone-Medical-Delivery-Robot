@@ -56,7 +56,7 @@ export default function Live() {
             <span className="h-2 w-2 animate-ping rounded-full bg-emerald-400" /> Live telemetry feed
           </div>
           <h1 className="mt-2 text-4xl font-bold text-white">Live airspace</h1>
-          <p className="mt-1 text-slate-400">Every MediDrop drone in real time, with an onboard chase-cam of the one you select.</p>
+          <p className="mt-1 text-slate-400">Every Aerolift drone in real time, with an onboard chase-cam of the one you select.</p>
         </div>
         <div className="flex gap-2">
           {[

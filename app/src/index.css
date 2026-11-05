@@ -6,7 +6,7 @@
   --font-display: 'Space Grotesk', 'Inter', ui-sans-serif, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  /* MediDrop palette: Midnight Navy #09243E · Pulse Teal #00C2C7 · Clinical White #F5F9FC ·
+  /* Aerolift palette: Midnight Navy #09243E · Pulse Teal #00C2C7 · Clinical White #F5F9FC ·
      Emergency Coral #FF685F · Steel Blue #1E4059 · Sky Mint #B9F0EC.
      Light theme: Clinical White page, white cards, navy text. Tailwind's default scales are remapped
      onto the palette, so `white` means "foreground" (navy) and `slate` runs from navy (50) to white (950). */

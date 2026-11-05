@@ -1,4 +1,4 @@
-// MediDrop Care plans: members pay a monthly subscription (like health insurance for deliveries)
+// Aerolift Care plans: members pay a monthly subscription (like health insurance for deliveries)
 // and every emergency drone delivery, supplies included, is free whenever they need it.
 import { one, run } from './db';
 import { welfareDiscount } from './welfare';

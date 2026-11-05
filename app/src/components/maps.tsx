@@ -103,7 +103,7 @@ export function MapPicker({
         <Circle center={[hub.lat, hub.lon]} radius={radiusKm * 1000} pathOptions={{ color: '#00c2c7', weight: 1.5, fillOpacity: 0.06, dashArray: '6 6' }} />
         <Marker position={[hub.lat, hub.lon]} icon={hubIcon}>
           <Tooltip direction="top" offset={[0, -18]}>
-            MediDrop hub
+            Aerolift hub
           </Tooltip>
         </Marker>
         {value && (
@@ -175,7 +175,7 @@ export function LiveMap({
       <FitBounds points={fitPoints} />
       <Marker position={[hub.lat, hub.lon]} icon={hubIcon}>
         <Tooltip direction="top" offset={[0, -18]}>
-          MediDrop hub
+          Aerolift hub
         </Tooltip>
       </Marker>
       {targets.map((t, i) => (

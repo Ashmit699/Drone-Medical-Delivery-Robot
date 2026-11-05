@@ -35,7 +35,9 @@ opsRoutes.get('/stats', (_req, res) => {
     pendingApproval: count(`SELECT COUNT(*) AS n FROM orders WHERE status = 'placed'`),
     readyToDispatch: count(`SELECT COUNT(*) AS n FROM orders WHERE status = 'approved'`),
     totalDelivered: count(`SELECT COUNT(*) AS n FROM orders WHERE status = 'delivered'`),
-    revenueToday: one<{ s: number | null }>(`SELECT SUM(total) AS s FROM orders WHERE ${today} AND status NOT IN ('rejected','cancelled')`)?.s ?? 0,
+    // Business model: income is monthly plan fees, not per-order charges.
+    activeMembers: count(`SELECT COUNT(*) AS n FROM subscriptions WHERE status = 'active' AND renews_at > datetime('now')`),
+    planRevenueMonthly: one<{ s: number | null }>(`SELECT SUM(price_paid) AS s FROM subscriptions WHERE status = 'active' AND renews_at > datetime('now')`)?.s ?? 0,
     avgDeliveryMin: avg?.m != null ? Math.round(avg.m * 10) / 10 : null,
     avgRating: one<{ r: number | null }>('SELECT ROUND(AVG(rating), 1) AS r FROM orders WHERE rating IS NOT NULL')?.r ?? null,
     successRate: (() => {

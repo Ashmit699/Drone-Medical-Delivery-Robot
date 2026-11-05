@@ -179,18 +179,24 @@ With none set, the 3D view uses free satellite imagery on a flat globe. This was
 - Service radius **1.3 km** (about 5.3 km²) inside a 2.4 × 2.4 km square around the hub.
 - The owner asked for a small 5–6 km² area.
 
-**Payload and fees**
-- Max payload **300 g**.
-- Delivery fee: standard ₹49, express ₹99, emergency ₹0. Add ₹20/km beyond the first 0.5 km (emergency and welfare deliveries are free).
+**Business model: emergency-only, paid by subscription** (changed 5 Nov 2026 at the owner's request)
+- **Every order is an emergency.** There is no standard or express option. Orders are **auto-approved** unless an item needs a prescription.
+- The drone always flies at **top speed**: `config.flight.cruiseSpeedMs` = **15 m/s** (54 km/h, ArduCopter WPNAV_SPEED 1500).
+- **No payment per order.** Customers pay a monthly **MediDrop Care plan**, like insurance. Every emergency delivery, supplies included, is then free (`server/src/subscription.ts`, `subscriptions` table, page `/plans`).
 
-**Priorities**
-- **Emergency** orders are **auto-approved** unless an item needs a prescription. This is the quickest path for demos.
-- Prescription items (`rx_required`) need an uploaded prescription image, which the operator can view.
+| Plan | Price | People | Free deliveries | Supplies covered per delivery |
+|------|-------|--------|-----------------|-------------------------------|
+| Personal | ₹99/month | 1 | 4 per month | ₹1,000 |
+| Family | ₹249/month | up to 5 | 10 per month | ₹1,500 |
+| Care+ | ₹449/month | up to 5 | unlimited | ₹3,000 |
 
-**Welfare subsidy**
-- The customer applies with a document number, which is stored masked.
-- An operator verifies it in the Welfare queue.
-- After that: BPL −50%, SC/ST −40%, EWS −30%, plus free delivery.
+- **No plan, used up, or over the limit:** the quote returns a "problem" and checkout shows a "Choose a plan" button.
+- **Plan payment** is simulated (UPI autopay, no real charge).
+- **Orders:** `priority='emergency'`, `total=0`, `payment_method='plan'`, `payment_status='covered'`. `items_total` keeps the value of the supplies.
+- **Welfare:** BPL −50%, SC/ST −40%, EWS −30%, now taken **off the plan price** once an operator verifies the document.
+- **Operator dashboard:** shows "Plan income / month" and active members instead of revenue per order.
+- **Demo customer** is seeded with an active **Family** plan.
+- **Max payload** is still **300 g**.
 
 **Other**
 - Flight: cruise 25 m, drop height 4 m, 12 m/s, usable flight time about 600 s (the quote shows battery use %).
@@ -201,14 +207,15 @@ With none set, the 3D view uses free satellite imagery on a flat globe. This was
 
 | Route | Page |
 |-------|------|
-| `/` | Home: futuristic hero, live stats, how-it-works journey |
+| `/` | Home, styled like a normal pharmacy business: hero with search, Order now / SOS / Plans buttons, health-campaign ads (diabetes, heart, mother & baby), categories, most-ordered products, how it works, road vs drone time, plans teaser, reviews. Operator-style info (airspace, weather, fleet) moved behind a **Live operations** button that opens `/live`. |
+| `/plans` | MediDrop Care plans: compare, subscribe (demo payment), switch or cancel, current usage |
 | `/features`, `/technology` | Feature showcase; technology explainer (mentions TS100, ArduPilot) |
 | `/live` | Live airspace: radar, fleet, weather conditions (GO / CAUTION / NO-GO) |
 | `/shop`, `/shop/:slug` | 30 products incl. a "Relief & Survival" category, badges, search (`?q=` synced with the navbar) |
 | `/cart` | Full cart (Zustand, persisted) plus a cart drawer in the navbar |
-| `/checkout` | Address, **drop-point picker with a 2D/3D toggle**, priority, live quote (distance fee, subsidy line, battery %), prescription upload, sends `groundAltM` |
+| `/checkout` | "Send emergency drone": address, **drop-point picker with a 2D/3D toggle**, safety checks, prescription upload, "Your cover" (plan status), summary showing supplies covered and **You pay ₹0**; sends `groundAltM` |
 | `/orders`, `/orders/:id` | Order history with reorder; **live tracking** (map or 3D, phase timeline, "Area clear" button, rating) |
-| `/welfare` | Apply for the welfare subsidy |
+| `/welfare` | Apply for the welfare discount on plans |
 | `/profile`, `/login`, `/register` | Account |
 
 Global features:
@@ -260,6 +267,7 @@ Data comes from `server/src/display.ts` (`/api/display/state`, plus the socket r
 - `POST /orders/quote`, `POST /orders`, `GET /orders`, `GET /orders/:id`
 - `POST /orders/:id/cancel`, `POST /orders/:id/clearance` ("Area clear"), `POST /orders/:id/rate`
 - `GET` / `POST` / `DELETE /welfare`
+- `GET /subscription` (current plan + plans with this user's price), `POST /subscription {plan}`, `DELETE /subscription`
 
 **Ops** (`routes/ops.ts`, mounted at `/api/ops`)
 - `GET /stats`

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { Router } from 'express';
 import { z } from 'zod';
 import { config } from '../config';
+import { PLANS } from '../subscription';
 import { all, one, run } from '../db';
 import { HttpError, requireAuth, signToken, type AuthUser, type Role } from '../lib/auth';
 import { offsetM } from '../lib/geo';
@@ -21,9 +22,7 @@ publicRoutes.get('/config', (_req, res) => {
     serviceRadiusKm: config.serviceRadiusKm,
     demoArea: { south: sw.lat, west: sw.lon, north: ne.lat, east: ne.lon, areaKm2: +((2 * config.demoAreaHalfSideKm) ** 2).toFixed(2) },
     maxPayloadG: config.maxPayloadG,
-    fees: config.fees,
-    perKmFee: config.perKmFee,
-    includedKm: config.includedKm,
+    plans: PLANS,
     flight: config.flight,
   });
 });

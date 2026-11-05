@@ -27,7 +27,6 @@ import { useLiveOrder } from '../lib/useLiveOrder';
 
 const Map3D = lazy(() => import('../components/Map3D'));
 
-const PAYMENT_LABEL = { upi: 'UPI', wallet: 'MediDrop wallet', account: 'Hospital / scheme account' };
 
 function RateBox({ order, onRated }: { order: OrderDetail; onRated: (o: OrderDetail) => void }) {
   const [rating, setRating] = useState(0);
@@ -239,7 +238,7 @@ export default function Track() {
                   {order.status === 'failed' ? 'Delivery could not be completed' : order.status === 'rejected' ? 'Order rejected' : 'Order cancelled'}
                 </div>
                 <div className="text-sm text-red-200">
-                  {order.reject_reason ?? (order.status === 'failed' ? 'The drone brought your package back to base safely. We will contact you to redeliver.' : 'Any payment has been refunded.')}
+                  {order.reject_reason ?? (order.status === 'failed' ? 'The drone brought your package back to base safely. We will contact you to redeliver.' : 'Nothing was charged. Your plan delivery was not used.')}
                 </div>
               </div>
             </div>
@@ -296,23 +295,17 @@ export default function Track() {
               ))}
             </ul>
             <dl className="space-y-1.5 border-t border-line pt-4">
-              {!!order.subsidy && (
-                <div className="flex justify-between text-violet-300">
-                  <dt>Welfare subsidy</dt>
-                  <dd className="font-mono">−{rupees(order.subsidy)}</dd>
-                </div>
-              )}
               <div className="flex justify-between">
-                <dt className="text-slate-400">Delivery</dt>
-                <dd>{order.delivery_fee ? rupees(order.delivery_fee) : 'Free'}</dd>
+                <dt className="text-slate-400">Emergency drone delivery</dt>
+                <dd className="font-semibold text-emerald-400">Free</dd>
               </div>
               <div className="flex justify-between font-bold">
-                <dt>Total</dt>
+                <dt>You pay</dt>
                 <dd>{rupees(order.total)}</dd>
               </div>
               <div className="flex justify-between text-xs text-slate-400">
-                <dt>{PAYMENT_LABEL[order.payment_method]}</dt>
-                <dd className="capitalize">{order.payment_status}</dd>
+                <dt>Supplies worth {rupees(order.items_total)}</dt>
+                <dd>Covered by your plan</dd>
               </div>
               <div className="flex justify-between text-xs text-slate-400">
                 <dt>Package weight</dt>

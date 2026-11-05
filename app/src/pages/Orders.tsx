@@ -1,9 +1,9 @@
 import { ChevronRight, Package, Plane, RotateCcw, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Empty, ErrorNote, PageLoader, PriorityBadge, StatusBadge } from '../components/ui';
+import { Empty, ErrorNote, PageLoader, StatusBadge } from '../components/ui';
 import { api, getSocket, useApi } from '../lib/api';
-import { cx, dateTime, rupees } from '../lib/format';
+import { cx, dateTime } from '../lib/format';
 import { PHASE_LABELS } from '../lib/phases';
 import type { OrderDetail, OrderSummary, Product } from '../lib/types';
 import { useCart } from '../store/cart';
@@ -79,7 +79,6 @@ export default function Orders() {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-bold">{o.code}</span>
                   <StatusBadge status={o.status} />
-                  {o.priority !== 'standard' && <PriorityBadge priority={o.priority} />}
                 </div>
                 <div className="mt-1 line-clamp-1 text-sm text-slate-300">{o.summary}</div>
                 <div className="mt-0.5 text-xs text-slate-500">
@@ -88,7 +87,7 @@ export default function Orders() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-mono font-bold text-white">{rupees(o.total)}</div>
+                <div className="text-xs font-semibold text-emerald-400">Free · plan</div>
                 {['delivered', 'failed', 'cancelled'].includes(o.status) && (
                   <button
                     className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-brand-300 hover:underline"

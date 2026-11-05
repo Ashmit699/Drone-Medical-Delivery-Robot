@@ -1,14 +1,13 @@
-import { AlertTriangle, Building2, Camera, Check, FileCheck2, MapPin, Siren, Smartphone, Timer, Wallet, Zap } from 'lucide-react';
+import { AlertTriangle, Camera, Check, FileCheck2, MapPin, ShieldCheck, Siren, Zap } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { MapPicker } from '../components/maps';
 import type { RouteInfo } from '../components/Map3D';
 import { ProductIcon } from '../components/ProductIcon';
 import { ErrorNote, PageLoader, PayloadMeter, Spinner } from '../components/ui';
 import { api, useApi, useAppConfig } from '../lib/api';
 import { cx, duration, km, rupees } from '../lib/format';
-import { PRIORITY_META } from '../lib/phases';
-import type { Address, LatLon, OrderDetail, Priority, Quote } from '../lib/types';
+import type { Address, LatLon, OrderDetail, Quote } from '../lib/types';
 import { cartTotals, useCart } from '../store/cart';
 
 // Cesium is large, so it only downloads when the 3D view is shown.
@@ -19,18 +18,6 @@ const SAFETY = [
   'Printed MediDrop marker placed flat on the ground (or a clear open patch)',
   'I will keep people and animals 5 m away while the package is lowered',
 ];
-
-const PAYMENTS = [
-  { id: 'upi', label: 'UPI', sub: 'GPay, PhonePe, Paytm (demo, no real charge)', icon: Smartphone },
-  { id: 'wallet', label: 'MediDrop wallet', sub: 'Prepaid health wallet (demo)', icon: Wallet },
-  { id: 'account', label: 'Hospital / scheme account', sub: 'Billed to PHC or a health scheme', icon: Building2 },
-] as const;
-
-const PRIORITY_ICONS: Record<Priority, ReactNode> = {
-  standard: <Timer className="h-5 w-5" />,
-  express: <Zap className="h-5 w-5" />,
-  emergency: <Siren className="h-5 w-5" />,
-};
 
 function Section({ n, title, children, done }: { n: number; title: string; children: ReactNode; done?: boolean }) {
   return (
@@ -79,10 +66,8 @@ export default function Checkout() {
   const [line, setLine] = useState('');
   const [saveAddress, setSaveAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<number | null>(null);
-  const [priority, setPriority] = useState<Priority>('standard');
   const [checks, setChecks] = useState<boolean[]>(SAFETY.map(() => false));
   const [rxImage, setRxImage] = useState<string | null>(null);
-  const [payment, setPayment] = useState<(typeof PAYMENTS)[number]['id']>('upi');
   const [notes, setNotes] = useState('');
   const [quote, setQuote] = useState<Quote | null>(null);
   const [placing, setPlacing] = useState(false);
@@ -95,13 +80,13 @@ export default function Checkout() {
     if (lines.length === 0) return;
     const t = setTimeout(() => {
       api<Quote>('/orders/quote', {
-        body: { items: lines.map((l) => ({ productId: l.productId, qty: l.qty })), lat: pin?.lat, lon: pin?.lon, priority },
+        body: { items: lines.map((l) => ({ productId: l.productId, qty: l.qty })), lat: pin?.lat, lon: pin?.lon },
       })
         .then(setQuote)
         .catch((e) => setError(e.message));
     }, 200);
     return () => clearTimeout(t);
-  }, [lines, pin, priority]);
+  }, [lines, pin]);
 
   if (lines.length === 0 && !placing) return <Navigate to="/cart" replace />;
   if (!config) return <PageLoader />;
@@ -126,6 +111,7 @@ export default function Checkout() {
     pin && (!label.trim() || line.trim().length < 3) && 'address name + landmark',
     !safetyDone && 'drop-zone safety checks',
     !rxDone && 'prescription photo',
+    quote && !quote.plan && 'an active MediDrop Care plan',
   ].filter(Boolean) as string[];
 
   const placeOrder = async () => {
@@ -135,12 +121,10 @@ export default function Checkout() {
       const order = await api<OrderDetail>('/orders', {
         body: {
           items: lines.map((l) => ({ productId: l.productId, qty: l.qty })),
-          priority,
           lat: pin!.lat,
           lon: pin!.lon,
           addressLabel: label.trim(),
           addressLine: line.trim(),
-          paymentMethod: payment,
           notes: notes.trim() || undefined,
           rxImage: rxImage ?? undefined,
           saveAddress,
@@ -157,7 +141,10 @@ export default function Checkout() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-extrabold tracking-tight">Checkout</h1>
+      <h1 className="flex items-center gap-3 text-3xl font-extrabold tracking-tight">
+        <Siren className="h-7 w-7 text-red-400" /> Send emergency drone
+      </h1>
+      <p className="mt-1 text-sm text-slate-400">Every MediDrop flight is an emergency flight: auto-approved, first in the queue, flown at full speed.</p>
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
           <Section n={1} title="Where should we drop it?" done={locationDone}>
@@ -244,40 +231,7 @@ export default function Checkout() {
             )}
           </Section>
 
-          <Section n={2} title="How urgent is it?" done>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {(['standard', 'express', 'emergency'] as Priority[]).map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setPriority(p)}
-                  className={cx(
-                    'rounded-2xl border p-4 text-left transition',
-                    priority === p
-                      ? p === 'emergency'
-                        ? 'border-red-500 bg-red-500/10 ring-2 ring-red-500/20'
-                        : 'border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/20'
-                      : 'border-line hover:border-white/20',
-                  )}
-                >
-                  <div className={cx('flex items-center justify-between', p === 'emergency' ? 'text-red-400' : 'text-brand-300')}>
-                    {PRIORITY_ICONS[p]}
-                    <span className="text-sm font-bold">{config.fees[p] === 0 ? 'Free' : rupees(config.fees[p])}</span>
-                  </div>
-                  <div className="mt-3 font-semibold">{PRIORITY_META[p].label}</div>
-                  <div className="text-xs text-slate-400">{PRIORITY_META[p].blurb}</div>
-                </button>
-              ))}
-            </div>
-            {priority === 'emergency' && (
-              <p className="mt-3 flex items-start gap-2 rounded-xl bg-red-500/10 p-3 text-xs text-red-300">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                For life-threatening emergencies, also call 108 / 112. The drone brings supplies, not a doctor.
-              </p>
-            )}
-          </Section>
-
-          <Section n={3} title="Is the drop zone safe?" done={safetyDone}>
+          <Section n={2} title="Is the drop zone safe?" done={safetyDone}>
             <p className="mb-3 text-sm text-slate-400">The drone hovers about {config.flight.dropAltM} m up and lowers the package on a rope.</p>
             <div className="space-y-2">
               {SAFETY.map((s, i) => (
@@ -295,7 +249,7 @@ export default function Checkout() {
           </Section>
 
           {totals.rxRequired && (
-            <Section n={4} title="Prescription" done={rxDone}>
+            <Section n={3} title="Prescription" done={rxDone}>
               <p className="mb-3 text-sm text-slate-400">A pharmacist checks this before your order is approved.</p>
               {rxImage ? (
                 <div className="flex items-center gap-4">
@@ -329,23 +283,31 @@ export default function Checkout() {
             </Section>
           )}
 
-          <Section n={totals.rxRequired ? 5 : 4} title="Payment" done>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {PAYMENTS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setPayment(p.id)}
-                  className={cx('rounded-2xl border p-4 text-left transition', payment === p.id ? 'border-brand-500 bg-brand-500/10 ring-2 ring-brand-500/20' : 'border-line hover:border-white/20')}
-                >
-                  <p.icon className="h-5 w-5 text-brand-300" />
-                  <div className="mt-3 text-sm font-semibold">{p.label}</div>
-                  <div className="text-xs text-slate-400">{p.sub}</div>
-                </button>
-              ))}
-            </div>
+          <Section n={totals.rxRequired ? 4 : 3} title="Your cover" done={!!quote?.plan}>
+            {quote?.plan ? (
+              <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                <ShieldCheck className="h-8 w-8 text-emerald-300" />
+                <div className="min-w-[220px] flex-1">
+                  <div className="font-semibold text-white">MediDrop Care {quote.plan.name} · active</div>
+                  <div className="text-xs text-slate-300">
+                    Nothing to pay. Supplies up to {rupees(quote.plan.coverPerDelivery)} and the flight are covered.{' '}
+                    {quote.plan.remaining == null ? 'Unlimited deliveries.' : `${quote.plan.remaining} of ${quote.plan.deliveriesPerMonth} free deliveries left this month.`}
+                  </div>
+                </div>
+                <Link to="/plans" className="text-xs font-semibold text-brand-300 hover:underline">Manage plan</Link>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+                You don’t have an active plan yet. A MediDrop Care plan from ₹99/month makes every emergency delivery free.
+                <Link to="/plans?next=/checkout" className="btn-primary mt-3 w-fit">Choose a plan</Link>
+              </div>
+            )}
+            <p className="mt-3 flex items-start gap-2 rounded-xl bg-red-500/10 p-3 text-xs text-red-300">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              For life-threatening emergencies, also call 108 / 112. The drone brings supplies, not a doctor.
+            </p>
             <label className="label mt-5" htmlFor="notes">Note for the pharmacist (optional)</label>
-            <textarea id="notes" className="input min-h-20" maxLength={300} placeholder="Allergies, dosage questions, landmark details…" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <textarea id="notes" className="input min-h-20" maxLength={300} placeholder="Symptoms, allergies, landmark details…" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </Section>
         </div>
 
@@ -369,28 +331,20 @@ export default function Checkout() {
           <PayloadMeter weightG={quote?.weightG ?? totals.weightG} maxG={config.maxPayloadG} compact />
           <dl className="space-y-2 border-t border-line pt-4 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-400">Items</dt>
+              <dt className="text-slate-400">Supplies</dt>
               <dd>{rupees(quote?.itemsTotal ?? totals.subtotal)}</dd>
             </div>
-            {!!quote?.subsidy && (
-              <div className="flex justify-between text-violet-300">
-                <dt>Welfare subsidy ({quote.welfare?.category} −{quote.welfare?.pct}%)</dt>
-                <dd className="font-mono">−{rupees(quote.subsidy)}</dd>
-              </div>
-            )}
-            <div className="flex justify-between">
-              <dt className="text-slate-400">Drone delivery ({quote?.welfare ? 'welfare' : PRIORITY_META[priority].label})</dt>
-              <dd>{(quote ? quote.deliveryFee - quote.distanceFee : config.fees[priority]) === 0 ? <span className="font-semibold text-emerald-400">Free</span> : rupees(config.fees[priority])}</dd>
+            <div className="flex justify-between text-emerald-400">
+              <dt>Covered by {quote?.plan ? `${quote.plan.name} plan` : 'your plan'}</dt>
+              <dd className="font-mono">−{rupees(quote?.itemsTotal ?? totals.subtotal)}</dd>
             </div>
-            {!!quote?.distanceFee && (
-              <div className="flex justify-between">
-                <dt className="text-slate-400">Distance ({rupees(config.perKmFee)}/km after {config.includedKm} km)</dt>
-                <dd>{rupees(quote.distanceFee)}</dd>
-              </div>
-            )}
+            <div className="flex justify-between">
+              <dt className="text-slate-400">Emergency flight (top speed {config.flight.cruiseSpeedMs * 3.6} km/h)</dt>
+              <dd className="font-semibold text-emerald-400">Free</dd>
+            </div>
             {quote?.distanceM != null && (
               <div className="flex justify-between">
-                <dt className="text-slate-400">Flight</dt>
+                <dt className="text-slate-400">Arrives in</dt>
                 <dd>
                   {km(quote.distanceM)} · ~{duration(quote.etaS ?? 0)}
                 </dd>
@@ -403,8 +357,8 @@ export default function Checkout() {
               </div>
             )}
             <div className="flex justify-between border-t border-line pt-3 text-base font-bold">
-              <dt>Total</dt>
-              <dd>{rupees(quote?.total ?? totals.subtotal + config.fees[priority])}</dd>
+              <dt>You pay</dt>
+              <dd>{rupees(0)}</dd>
             </div>
           </dl>
 
@@ -419,9 +373,9 @@ export default function Checkout() {
           )}
           <ErrorNote>{error}</ErrorNote>
 
-          <button className={cx('w-full py-3', priority === 'emergency' ? 'btn-danger' : 'btn-primary')} disabled={!canPlace} onClick={placeOrder}>
-            {placing ? <Spinner className="h-4 w-4 text-white" /> : null}
-            {placing ? 'Placing order…' : `Place order · ${rupees(quote?.total ?? 0)}`}
+          <button className="btn-danger w-full py-3" disabled={!canPlace} onClick={placeOrder}>
+            {placing ? <Spinner className="h-4 w-4 text-white" /> : <Zap className="h-4 w-4" />}
+            {placing ? 'Dispatching…' : 'Send emergency drone · Free'}
           </button>
           {missing.length > 0 && <p className="text-center text-xs text-slate-400">Still needed: {missing.join(', ')}</p>}
         </aside>

@@ -30,7 +30,7 @@ export const STATUS_META: Record<OrderStatus, { label: string; tone: string }> =
 export const PRIORITY_META: Record<Priority, { label: string; tone: string; blurb: string }> = {
   standard: { label: 'Standard', tone: 'bg-white/[0.06] text-slate-200', blurb: 'Dispatched in order' },
   express: { label: 'Express', tone: 'bg-amber-500/15 text-amber-200', blurb: 'Skips the standard queue' },
-  emergency: { label: 'Emergency', tone: 'bg-red-500/15 text-red-300', blurb: 'Next drone out, free of charge' },
+  emergency: { label: 'Emergency', tone: 'bg-red-500/15 text-red-300', blurb: 'Next drone out at full speed, free on your plan' },
 };
 
 /** Customer-facing journey. Each step completes when the order reaches one of its phases/statuses. */

@@ -3,6 +3,7 @@
 import bcrypt from 'bcryptjs';
 import { config } from '../config';
 import { offsetM } from '../lib/geo';
+import { subscribe } from '../subscription';
 import { db, run, tx } from './index';
 
 // Demo accounts (also shown as one-click buttons on the login page).
@@ -84,7 +85,7 @@ const PLACES: [label: string, line: string, north: number, east: number][] = [
 
 export function seed() {
   tx(() => {
-    for (const t of ['events', 'missions', 'order_items', 'orders', 'welfare', 'addresses', 'drones', 'products', 'users']) {
+    for (const t of ['events', 'missions', 'order_items', 'orders', 'subscriptions', 'welfare', 'addresses', 'drones', 'products', 'users']) {
       db.exec(`DELETE FROM ${t}`);
     }
     db.exec(`DELETE FROM sqlite_sequence`);
@@ -93,6 +94,8 @@ export function seed() {
       (u) => run('INSERT INTO users (name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, ?)', u.name, u.email, u.phone, bcrypt.hashSync(u.password, 10), u.role).id,
     );
     const customerId = userIds[0];
+    // The demo customer is a Family plan member, so every emergency order is free.
+    subscribe(customerId, 'family');
 
     for (const [slug, name, category, description, price, weight, stock, rx, icon, tags] of PRODUCTS) {
       run(
@@ -114,7 +117,6 @@ export function seed() {
     const products = db.prepare('SELECT id, name, price, weight_g FROM products WHERE rx_required = 0 AND weight_g <= 120').all() as {
       id: number; name: string; price: number; weight_g: number;
     }[];
-    const priorities = ['standard', 'standard', 'express', 'emergency'] as const;
     let n = 0;
     const makeOrder = (daysAgo: number, status: 'delivered' | 'placed' | 'approved' | 'failed', minuteOfDay: number) => {
       n++;
@@ -122,24 +124,22 @@ export function seed() {
       const qty = items.map(() => 1 + (n % 2));
       const itemsTotal = items.reduce((s, p, i) => s + p.price * qty[i], 0);
       const weight = items.reduce((s, p, i) => s + p.weight_g * qty[i], 0);
-      const priority = priorities[n % priorities.length];
-      const fee = config.fees[priority];
       const place = places[n % places.length];
       const created = `datetime('now', 'start of day', '-${daysAgo} days', '+${minuteOfDay} minutes')`;
       const done = status === 'delivered' || status === 'failed';
       const { id } = run(
         `INSERT INTO orders (user_id, status, priority, items_total, delivery_fee, total, weight_g, payment_method, payment_status,
            address_label, address_line, lat, lon, distance_m, eta_s, drone_id, rating, created_at, updated_at, dispatched_at, delivered_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'upi', 'paid', ?, ?, ?, ?, ?, ?, ?, ?, ${created}, ${created},
+         VALUES (?, ?, 'emergency', ?, 0, 0, ?, 'plan', 'covered', ?, ?, ?, ?, ?, ?, ?, ?, ${created}, ${created},
            ${done ? `datetime(${created}, '+4 minutes')` : 'NULL'}, ${status === 'delivered' ? `datetime(${created}, '+${9 + (n % 6)} minutes')` : 'NULL'})`,
-        customerId, status, priority, itemsTotal, fee, itemsTotal + fee, weight, place.label, place.line, place.lat, place.lon,
+        customerId, status, itemsTotal, weight, place.label, place.line, place.lat, place.lon,
         600 + (n % 5) * 120, 140, done ? (n % 2 ? 'MDR-01' : 'MDR-02') : null, status === 'delivered' && n % 3 !== 0 ? 4 + (n % 2) : null,
       );
       run('UPDATE orders SET code = ? WHERE id = ?', `MD-${1000 + id}`, id);
       items.forEach((p, i) =>
         run('INSERT INTO order_items (order_id, product_id, name, price, qty, weight_g) VALUES (?, ?, ?, ?, ?, ?)', id, p.id, p.name, p.price, qty[i], p.weight_g),
       );
-      run(`INSERT INTO events (order_id, type, message, created_at) VALUES (?, 'placed', ?, ${created})`, id, `Order placed (${priority} priority)`);
+      run(`INSERT INTO events (order_id, type, message, created_at) VALUES (?, 'placed', ?, ${created})`, id, 'Emergency request received (covered by plan)');
       if (status === 'delivered') {
         run(`INSERT INTO events (order_id, type, message, created_at) VALUES (?, 'phase:releasing', 'Package is on the ground. Hooks open', datetime(${created}, '+10 minutes'))`, id);
       }

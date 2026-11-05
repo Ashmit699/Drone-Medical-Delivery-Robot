@@ -74,7 +74,7 @@ export default function Dashboard() {
         />
         <Kpi label="Avg. delivery" value={stats.avgDeliveryMin != null ? `${stats.avgDeliveryMin} min` : '—'} icon={<Timer className="h-4.5 w-4.5" />} tone="bg-sky-500/10 text-sky-400" sub="dispatch → package on ground" />
         <Kpi label="Success rate" value={stats.successRate != null ? `${stats.successRate}%` : '—'} icon={<CheckCircle2 className="h-4.5 w-4.5" />} tone="bg-emerald-500/10 text-emerald-400" sub={`${stats.totalDelivered} deliveries total`} />
-        <Kpi label="Revenue today" value={rupees(stats.revenueToday)} icon={<IndianRupee className="h-4.5 w-4.5" />} tone="bg-violet-500/10 text-violet-400" />
+        <Kpi label="Plan income / month" value={rupees(stats.planRevenueMonthly)} icon={<IndianRupee className="h-4.5 w-4.5" />} tone="bg-violet-500/10 text-violet-400" sub={`${stats.activeMembers} active member${stats.activeMembers === 1 ? '' : 's'}`} />
         <Kpi label="Avg. rating" value={stats.avgRating ?? '—'} icon={<Star className="h-4.5 w-4.5" />} tone="bg-amber-500/10 text-amber-500" sub="from customers" />
         <Kpi
           label="Fleet ready"

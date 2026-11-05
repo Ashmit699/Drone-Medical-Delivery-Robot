@@ -37,10 +37,39 @@ export interface AppConfig {
   serviceRadiusKm: number;
   demoArea: { south: number; west: number; north: number; east: number; areaKm2: number };
   maxPayloadG: number;
-  fees: Record<Priority, number>;
-  perKmFee: number;
-  includedKm: number;
+  plans: Plan[];
   flight: { cruiseAltM: number; dropAltM: number; cruiseSpeedMs: number };
+}
+
+export type PlanId = 'personal' | 'family' | 'care_plus';
+
+export interface Plan {
+  id: PlanId;
+  name: string;
+  priceMonthly: number;
+  members: number;
+  deliveriesPerMonth: number | null;
+  coverPerDelivery: number;
+  perks: string[];
+  popular?: boolean;
+}
+
+export interface Subscription {
+  plan: PlanId;
+  planName: string;
+  status: string;
+  price_paid: number;
+  started_at: string;
+  renews_at: string;
+  used: number;
+  remaining: number | null;
+  deliveriesPerMonth: number | null;
+  coverPerDelivery: number;
+}
+
+export interface PlanState {
+  current: Subscription | null;
+  plans: (Plan & { price: number })[];
 }
 
 export interface Product {
@@ -68,12 +97,8 @@ export interface Quote {
   lines: { productId: number; name: string; price: number; qty: number; weightG: number; rxRequired: boolean; icon: string }[];
   itemsTotal: number;
   weightG: number;
-  baseFee: number;
-  distanceFee: number;
-  deliveryFee: number;
   batteryUsePct: number | null;
-  subsidy: number;
-  welfare: { pct: number; category: string; label: string } | null;
+  plan: { name: string; remaining: number | null; deliveriesPerMonth: number | null; coverPerDelivery: number } | null;
   total: number;
   distanceM: number | null;
   etaS: number | null;
@@ -120,7 +145,7 @@ export interface OrderDetail {
   delivery_fee: number;
   total: number;
   weight_g: number;
-  payment_method: 'upi' | 'wallet' | 'account';
+  payment_method: string;
   payment_status: string;
   address_label: string;
   address_line: string;
@@ -189,7 +214,8 @@ export interface Stats {
   pendingApproval: number;
   readyToDispatch: number;
   totalDelivered: number;
-  revenueToday: number;
+  activeMembers: number;
+  planRevenueMonthly: number;
   avgDeliveryMin: number | null;
   avgRating: number | null;
   successRate: number | null;

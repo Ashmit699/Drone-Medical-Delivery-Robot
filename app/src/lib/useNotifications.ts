@@ -46,7 +46,7 @@ export function useNotifications() {
     const onWelfare = (w: { status: string; discountPct: number; note: string | null }) =>
       toast(
         w.status === 'verified'
-          ? { tone: 'success', title: `Welfare verified: ${w.discountPct}% off`, body: 'Subsidised prices and free delivery are now active', href: '/shop' }
+          ? { tone: 'success', title: `Welfare verified: ${w.discountPct}% off`, body: 'Your MediDrop Care plan is now cheaper', href: '/plans' }
           : { tone: 'error', title: 'Welfare request not approved', body: w.note ?? 'Please check your document details', href: '/welfare' },
       );
     const onWelfareNew = (w: { name: string; category: string }) =>

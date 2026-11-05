@@ -6,6 +6,7 @@ import { drones } from '../drone/manager';
 import { HttpError, requireAuth } from '../lib/auth';
 import { cancelOrder, createOrder, getOrderDetail, listOrders, quote, sendClearance } from '../orders';
 import { emitOrderUpdate, emitToOps } from '../realtime';
+import { activeSubscription, planPrice, PLANS, subscribe, type PlanId } from '../subscription';
 import { maskDoc, WELFARE_DISCOUNT, WELFARE_LABEL, type WelfareRow } from '../welfare';
 
 export const customerRoutes = Router();
@@ -44,23 +45,20 @@ customerRoutes.delete('/addresses/:id', (req, res) => {
 // ---------- Checkout ----------
 
 const itemsSchema = z.array(z.object({ productId: z.number().int(), qty: z.number().int().min(1).max(20) })).max(30);
-const prioritySchema = z.enum(['standard', 'express', 'emergency']);
 
 customerRoutes.post('/orders/quote', (req, res) => {
   const body = z
-    .object({ items: itemsSchema, lat: z.number().optional(), lon: z.number().optional(), priority: prioritySchema.default('standard') })
+    .object({ items: itemsSchema, lat: z.number().optional(), lon: z.number().optional() })
     .parse(req.body);
   res.json(quote(body, req.user!.id));
 });
 
 const orderSchema = z.object({
   items: itemsSchema.min(1),
-  priority: prioritySchema,
   lat: z.number(),
   lon: z.number(),
   addressLabel: z.string().trim().min(1).max(40),
   addressLine: z.string().trim().min(3).max(200),
-  paymentMethod: z.enum(['upi', 'wallet', 'account']),
   notes: z.string().trim().max(300).optional(),
   rxImage: z
     .string()
@@ -152,4 +150,26 @@ customerRoutes.post('/welfare', (req, res) => {
 customerRoutes.delete('/welfare', (req, res) => {
   run('DELETE FROM welfare WHERE user_id = ?', req.user!.id);
   res.status(204).end();
+});
+
+// ---------- MediDrop Care plan (subscription) ----------
+
+const planState = (userId: number) => ({
+  current: activeSubscription(userId),
+  plans: PLANS.map((p) => ({ ...p, price: planPrice(p, userId) })),
+});
+
+customerRoutes.get('/subscription', (req, res) => {
+  res.json(planState(req.user!.id));
+});
+
+customerRoutes.post('/subscription', (req, res) => {
+  const { plan } = z.object({ plan: z.enum(PLANS.map((p) => p.id) as [PlanId, ...PlanId[]]) }).parse(req.body);
+  subscribe(req.user!.id, plan);
+  res.status(201).json(planState(req.user!.id));
+});
+
+customerRoutes.delete('/subscription', (req, res) => {
+  run(`UPDATE subscriptions SET status = 'cancelled' WHERE user_id = ?`, req.user!.id);
+  res.json(planState(req.user!.id));
 });

@@ -18,17 +18,17 @@ export const config = {
 
   // Must match what the real drone + gripper can lift (see docs/02-hardware-electronics.md).
   maxPayloadG: 300,
-  fees: { standard: 49, express: 99, emergency: 0 } as Record<Priority, number>,
-  // Distance part of the fee (not charged for emergencies).
-  perKmFee: 20,
-  includedKm: 0.5,
+  // MediDrop is emergency-only: no payment per order. Members pay a monthly plan (like insurance)
+  // and every emergency delivery, supplies included, is free for them. See subscription.ts.
   // Rough battery model for the quote: ~10 min of usable flight on a 4S pack with payload.
   usableFlightS: 600,
 
   flight: {
     cruiseAltM: 25,
     dropAltM: 4,
-    cruiseSpeedMs: 12,
+    // Every flight is an emergency, so the drone flies at its top safe cruise speed
+    // (ArduCopter WPNAV_SPEED 1500 cm/s; an S500 with 920KV motors tops out around 15–17 m/s).
+    cruiseSpeedMs: 15,
   },
 
   // Real-drone mission settings (see docs/08-ardupilot-auto-missions.md).

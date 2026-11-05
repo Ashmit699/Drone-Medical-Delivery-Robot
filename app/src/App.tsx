@@ -17,6 +17,7 @@ import Shop from './pages/Shop';
 import Technology from './pages/Technology';
 import Track from './pages/Track';
 import Welfare from './pages/Welfare';
+import Plans from './pages/Plans';
 
 const Live = lazy(() => import('./pages/Live'));
 const MissionControl = lazy(() => import('./pages/MissionControl'));
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="technology" element={<Technology />} />
           <Route path="live" element={<Live />} />
           <Route path="welfare" element={<Welfare />} />
+          <Route path="plans" element={<Plans />} />
           <Route path="shop" element={<Shop />} />
           <Route path="shop/:slug" element={<ProductPage />} />
           <Route path="cart" element={<Cart />} />

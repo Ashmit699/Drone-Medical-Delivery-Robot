@@ -50,10 +50,10 @@ export function Logo({ compact }: { compact?: boolean }) {
 }
 
 const NAV = [
-  { to: '/shop', label: 'Shop' },
-  { to: '/live', label: 'Live airspace' },
-  { to: '/features', label: 'Features' },
+  { to: '/shop', label: 'Order medicines' },
+  { to: '/plans', label: 'Care plans' },
   { to: '/technology', label: 'How it works' },
+  { to: '/features', label: 'Features' },
   { to: '/welfare', label: 'Welfare' },
 ];
 
@@ -255,7 +255,7 @@ function CartDrawer() {
               <span className="text-sm text-slate-400">Subtotal</span>
               <span className="font-mono text-xl font-bold text-white">{rupees(totals.subtotal)}</span>
             </div>
-            <p className="text-xs text-slate-500">Delivery, distance and any welfare subsidy are worked out at checkout.</p>
+            <p className="text-xs text-slate-500">Members pay nothing per order: supplies and the emergency flight are covered by your MediDrop Care plan.</p>
             <div className="grid grid-cols-2 gap-2">
               <Link to="/cart" className="btn-secondary">
                 View cart
@@ -294,7 +294,7 @@ function SosModal() {
     setError(null);
     try {
       const order = await api<OrderDetail>('/orders', {
-        body: { items: [{ productId: p.id, qty: 1 }], priority: 'emergency', lat, lon, addressLabel: `SOS · ${label}`, addressLine: line, paymentMethod: 'account', notes: 'SOS request from the app' },
+        body: { items: [{ productId: p.id, qty: 1 }], lat, lon, addressLabel: `SOS · ${label}`, addressLine: line, notes: 'SOS request from the app' },
       });
       setSosOpen(false);
       toast({ tone: 'warning', title: `SOS ${order.code} sent`, body: 'Emergency kit is next in line for dispatch' });
@@ -415,7 +415,8 @@ function Footer() {
             <li><Link to="/shop" className="hover:text-white">Supply catalogue</Link></li>
             <li><Link to="/live" className="hover:text-white">Live airspace</Link></li>
             <li><Link to="/mission-control" className="hover:text-white">Mission control screen</Link></li>
-            <li><Link to="/welfare" className="hover:text-white">Welfare subsidy</Link></li>
+            <li><Link to="/plans" className="hover:text-white">MediDrop Care plans</Link></li>
+            <li><Link to="/welfare" className="hover:text-white">Welfare discount</Link></li>
             <li><Link to="/technology" className="hover:text-white">How the drone works</Link></li>
           </ul>
         </div>

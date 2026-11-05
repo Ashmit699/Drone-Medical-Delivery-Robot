@@ -107,8 +107,8 @@ export default function Welfare() {
         <div className="hud mt-6 text-violet-300">Direct benefit pricing</div>
         <h1 className="mt-2 text-4xl font-bold text-white">Welfare subsidy</h1>
         <p className="mx-auto mt-3 max-w-xl text-slate-400">
-          Families below the poverty line (BPL), Scheduled Castes (SC), Scheduled Tribes (ST) and the Economically Weaker Section (EWS) get <b className="text-white">30–50% off every item</b>{' '}
-          and <b className="text-white">free drone delivery</b>, once an operator verifies the document.
+          Families below the poverty line (BPL), Scheduled Castes (SC), Scheduled Tribes (ST) and the Economically Weaker Section (EWS) get <b className="text-white">30–50% off their monthly MediDrop Care plan</b>{' '}
+          once an operator verifies the document. Every emergency delivery stays free.
         </p>
       </div>
 
@@ -137,14 +137,14 @@ export default function Welfare() {
                     <div className="mt-1 text-xs text-slate-400">
                       {data.full_name} · {data.location} · applied {dateTime(data.created_at)}
                     </div>
-                    {data.status === 'verified' && <div className="mt-3 font-mono text-sm font-bold text-emerald-300">−{data.discountPct}% on items + FREE delivery active</div>}
+                    {data.status === 'verified' && <div className="mt-3 font-mono text-sm font-bold text-emerald-300">−{data.discountPct}% on your Care plan is active</div>}
                     {data.status === 'rejected' && data.note && <div className="mt-2 text-sm">Reason: {data.note}</div>}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {data.status === 'verified' && (
-                    <Link to="/shop" className="btn-primary">
-                      Shop with subsidy
+                    <Link to="/plans" className="btn-primary">
+                      See my discounted plans
                     </Link>
                   )}
                   {data.status !== 'verified' && (

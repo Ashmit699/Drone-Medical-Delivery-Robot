@@ -1,5 +1,5 @@
-// Welfare subsidy: BPL / SC / ST / EWS beneficiaries get a direct discount on items and free
-// delivery once an operator has checked their document.
+// Welfare subsidy: BPL / SC / ST / EWS families get a discount on their monthly MediDrop Care
+// plan once an operator has checked their document.
 import { one } from './db';
 
 export type WelfareCategory = 'BPL' | 'SC' | 'ST' | 'EWS';

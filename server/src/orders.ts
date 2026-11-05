@@ -1,6 +1,6 @@
-// Order domain logic: pricing/quotes, checkout, approval, dispatch to a drone, and turning
+// Order domain logic: quotes (plan coverage), checkout, approval, dispatch to a drone, and turning
 // drone mission phases into order status updates.
-import { config, type Priority } from './config';
+import { config } from './config';
 import { addEvent, all, one, run, tx } from './db';
 import { drones } from './drone/manager';
 import { buildMission } from './drone/mission';
@@ -8,7 +8,7 @@ import { PHASE_LABELS, type MissionPlan, type PhaseEvent } from './drone/types';
 import { HttpError } from './lib/auth';
 import { distanceM } from './lib/geo';
 import { emitOrderUpdate } from './realtime';
-import { welfareDiscount, WELFARE_LABEL } from './welfare';
+import { activeSubscription } from './subscription';
 
 export type OrderStatus = 'placed' | 'approved' | 'rejected' | 'cancelled' | 'in_flight' | 'delivered' | 'failed';
 
@@ -17,7 +17,7 @@ export interface OrderRow {
   code: string;
   user_id: number;
   status: OrderStatus;
-  priority: Priority;
+  priority: 'emergency';
   items_total: number;
   delivery_fee: number;
   total: number;
@@ -58,7 +58,6 @@ export interface QuoteInput {
   items: { productId: number; qty: number }[];
   lat?: number;
   lon?: number;
-  priority: Priority;
 }
 
 /** Estimated real-world flight time from takeoff to package on the ground. */
@@ -93,24 +92,18 @@ export function quote(input: QuoteInput, userId?: number) {
     }
   }
 
-  // Verified welfare beneficiaries: direct discount on items and free delivery.
-  const welfare = welfareDiscount(userId);
-  const subsidy = welfare ? Math.round((itemsTotal * welfare.pct) / 100) : 0;
-  const baseFee = welfare ? 0 : config.fees[input.priority];
-  const distanceFee =
-    welfare || input.priority === 'emergency' || distance == null ? 0 : Math.round(Math.max(0, distance / 1000 - config.includedKm) * config.perKmFee);
-  const deliveryFee = baseFee + distanceFee;
+  // Members pay nothing per order: the plan covers the flight and the supplies.
+  const plan = activeSubscription(userId);
+  if (userId && !plan) problems.push('Activate a MediDrop Care plan to send emergency deliveries for free');
+  if (plan && plan.remaining === 0) problems.push(`You have used all ${plan.deliveriesPerMonth} free deliveries on your ${plan.planName} plan this month. Upgrade to Care+ for unlimited`);
+  if (plan && itemsTotal > plan.coverPerDelivery) problems.push(`Your ${plan.planName} plan covers supplies up to ₹${plan.coverPerDelivery} per delivery. Remove some items or upgrade`);
   const etaS = distance != null ? estimateEtaS(distance) : null;
   return {
     lines: valid,
     itemsTotal,
     weightG,
-    baseFee,
-    distanceFee,
-    deliveryFee,
-    subsidy,
-    welfare: welfare ? { ...welfare, label: WELFARE_LABEL[welfare.category] } : null,
-    total: itemsTotal - subsidy + deliveryFee,
+    plan: plan && { name: plan.planName, remaining: plan.remaining, deliveriesPerMonth: plan.deliveriesPerMonth, coverPerDelivery: plan.coverPerDelivery },
+    total: 0,
     distanceM: distance,
     etaS,
     // Out and back plus hover/drop time, as a share of one battery.
@@ -125,7 +118,6 @@ export interface CreateOrderInput extends QuoteInput {
   lon: number;
   addressLabel: string;
   addressLine: string;
-  paymentMethod: 'upi' | 'wallet' | 'account';
   notes?: string;
   rxImage?: string;
   groundAltM?: number; // height of the drop surface (from the 3D map), if known
@@ -136,26 +128,25 @@ export function createOrder(userId: number, input: CreateOrderInput): number {
   if (q.problems.length) throw new HttpError(400, q.problems.join('. '));
   if (q.rxRequired && !input.rxImage) throw new HttpError(400, 'A prescription photo is required for Rx items');
 
-  const autoApprove = input.priority === 'emergency' && !q.rxRequired;
-  const paymentStatus = input.paymentMethod === 'account' ? 'billed' : 'paid';
+  // Every order is an emergency: straight to the dispatch queue unless a pharmacist must check an Rx.
+  const autoApprove = !q.rxRequired;
 
   const id = tx(() => {
     const { id } = run(
       `INSERT INTO orders (user_id, status, priority, items_total, delivery_fee, total, weight_g, payment_method,
          payment_status, address_label, address_line, lat, lon, distance_m, eta_s, notes, rx_image, ground_alt_m, subsidy)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      userId, autoApprove ? 'approved' : 'placed', input.priority, q.itemsTotal, q.deliveryFee, q.total, q.weightG,
-      input.paymentMethod, paymentStatus, input.addressLabel, input.addressLine, input.lat, input.lon, q.distanceM!, q.etaS!,
-      input.notes ?? null, input.rxImage ?? null, input.groundAltM ?? null, q.subsidy,
+       VALUES (?, ?, 'emergency', ?, 0, 0, ?, 'plan', 'covered', ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+      userId, autoApprove ? 'approved' : 'placed', q.itemsTotal, q.weightG,
+      input.addressLabel, input.addressLine, input.lat, input.lon, q.distanceM!, q.etaS!,
+      input.notes ?? null, input.rxImage ?? null, input.groundAltM ?? null,
     );
     run('UPDATE orders SET code = ? WHERE id = ?', `MD-${1000 + id}`, id);
     for (const l of q.lines) {
       run('INSERT INTO order_items (order_id, product_id, name, price, qty, weight_g) VALUES (?, ?, ?, ?, ?, ?)', id, l.productId, l.name, l.price, l.qty, l.weightG);
       run('UPDATE products SET stock = stock - ? WHERE id = ?', l.qty, l.productId);
     }
-    addEvent(id, 'placed', `Order placed (${input.priority} priority)`);
-    if (q.subsidy) addEvent(id, 'subsidy', `Welfare subsidy applied: ₹${q.subsidy} off + free delivery`);
-    if (autoApprove) addEvent(id, 'approved', 'Emergency order auto-approved. Preparing for dispatch');
+    addEvent(id, 'placed', `Emergency request received. Free on your ${q.plan!.name} plan`);
+    if (autoApprove) addEvent(id, 'approved', 'Auto-approved. Next drone out at full speed');
     return id;
   });
   emitOrderUpdate(id);
@@ -209,7 +200,7 @@ export function listOrders(where: { userId?: number; status?: string } = {}) {
             (SELECT SUM(qty) FROM order_items WHERE order_id = o.id) AS item_count
        FROM orders o JOIN users u ON u.id = o.user_id LEFT JOIN missions m ON m.id = o.mission_id
       ${clauses.length ? 'WHERE ' + clauses.join(' AND ') : ''}
-      ORDER BY CASE o.priority WHEN 'emergency' THEN 0 WHEN 'express' THEN 1 ELSE 2 END, o.id DESC`,
+      ORDER BY o.id DESC`,
     ...params,
   );
 }
@@ -236,7 +227,7 @@ export function rejectOrder(id: number, reason: string) {
   const o = getOrderRow(id);
   if (!['placed', 'approved'].includes(o.status)) throw new HttpError(409, `Order is ${o.status}`);
   tx(() => {
-    run(`UPDATE orders SET status = 'rejected', reject_reason = ?, payment_status = CASE payment_status WHEN 'paid' THEN 'refunded' ELSE 'void' END, updated_at = datetime('now') WHERE id = ?`, reason, id);
+    run(`UPDATE orders SET status = 'rejected', reject_reason = ?, updated_at = datetime('now') WHERE id = ?`, reason, id);
     restock(id);
     addEvent(id, 'rejected', `Order rejected: ${reason}`);
   });
@@ -248,7 +239,7 @@ export function cancelOrder(id: number, userId: number) {
   if (o.user_id !== userId) throw new HttpError(404, 'Order not found');
   if (!['placed', 'approved'].includes(o.status)) throw new HttpError(409, 'This order can no longer be cancelled');
   tx(() => {
-    run(`UPDATE orders SET status = 'cancelled', payment_status = CASE payment_status WHEN 'paid' THEN 'refunded' ELSE 'void' END, updated_at = datetime('now') WHERE id = ?`, id);
+    run(`UPDATE orders SET status = 'cancelled', updated_at = datetime('now') WHERE id = ?`, id);
     restock(id);
     addEvent(id, 'cancelled', 'Order cancelled by customer');
   });

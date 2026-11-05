@@ -67,14 +67,22 @@ export default function Cart() {
           <PayloadMeter weightG={totals.weightG} maxG={maxG} />
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-400">Items ({totals.count})</dt>
+              <dt className="text-slate-400">Supplies ({totals.count})</dt>
               <dd className="font-medium">{rupees(totals.subtotal)}</dd>
             </div>
             <div className="flex justify-between">
+              <dt className="text-slate-400">Covered by MediDrop Care</dt>
+              <dd className="font-mono text-emerald-400">−{rupees(totals.subtotal)}</dd>
+            </div>
+            <div className="flex justify-between">
               <dt className="text-slate-400">Drone delivery</dt>
-              <dd className="text-slate-400">from {rupees(config?.fees.standard ?? 49)} · free for emergencies</dd>
+              <dd className="font-semibold text-emerald-400">Free with your plan</dd>
             </div>
           </dl>
+          <div className="flex justify-between border-t border-line pt-3 text-base font-bold">
+            <span>You pay</span>
+            <span>{rupees(0)}</span>
+          </div>
           {totals.rxRequired && (
             <div className="flex gap-2 rounded-xl bg-violet-500/10 p-3 text-xs text-violet-200">
               <FileCheck2 className="h-4 w-4 shrink-0" /> Your cart has prescription items. Have a photo of your prescription ready.

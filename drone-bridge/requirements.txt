@@ -1,2 +1,3 @@
 pymavlink>=2.4.41
 websockets>=13
+pyserial>=3.5

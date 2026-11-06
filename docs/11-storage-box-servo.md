@@ -46,11 +46,11 @@ In `server/src/config.ts` → `box` (or environment variables):
 | Setting | Default | Env var |
 |---------|---------|---------|
 | Output number | 8 | `BOX_SERVO` |
-| OPEN signal | **1900 µs (placeholder)** | `BOX_PWM_OPEN` |
-| CLOSED signal | **1100 µs (placeholder)** | `BOX_PWM_CLOSE` |
+| OPEN signal | **2000 µs** (measured) | `BOX_PWM_OPEN` |
+| CLOSED signal | **1000 µs** (measured) | `BOX_PWM_CLOSE` |
 | Time to open or close | 2 s | |
 
-Replace the placeholders with the values measured in step 4 below.
+1000 → 2000 µs turns the servo about 90°. Fit the horn so the door is shut at 1000.
 
 ---
 
@@ -86,6 +86,6 @@ the door is **firmly latched** (CLOSED) and **fully open** (OPEN). Write both nu
    after Area clear, CLOSED before leaving; opening while cruising is refused)
 3. **SITL:** fly an order, watch Mission Planner **DATA → Status → `ch8out`** change at the drop
    (set `SERVO8_FUNCTION = 0` in SITL too)
-4. **Real drone, props off, over telemetry:** Live monitor → Open box / Close box; then dispatch an
+4. **Real drone, props off, over telemetry:** Live monitor → Open box / Close box ✅ (tested 6 Nov 2026: 90° both ways, app shows OPEN/CLOSED read back from output 8); then dispatch an
    order and step through it
 5. Real flight with an empty box, then with a light package

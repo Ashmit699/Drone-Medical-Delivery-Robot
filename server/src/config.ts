@@ -46,11 +46,11 @@ export const config = {
   },
 
   // Storage box door: one servo on CrossFlight output 8, driven by DO_SET_SERVO (needs SERVO8_FUNCTION = 0).
-  // PWM values are placeholders until the real OPEN / CLOSED positions are measured (docs/11-storage-box-servo.md).
+  // CLOSED 1000 / OPEN 2000 µs = a 90° turn, measured on the real servo (docs/11-storage-box-servo.md).
   box: {
     servo: Number(process.env.BOX_SERVO ?? 8),
-    pwmOpen: Number(process.env.BOX_PWM_OPEN ?? 1900),
-    pwmClose: Number(process.env.BOX_PWM_CLOSE ?? 1100),
+    pwmOpen: Number(process.env.BOX_PWM_OPEN ?? 2000),
+    pwmClose: Number(process.env.BOX_PWM_CLOSE ?? 1000),
     moveS: 2, // time the door needs to open or close fully; the drone holds still meanwhile
   },
 

@@ -42,7 +42,7 @@ INBOX_MSGS = {"MISSION_REQUEST_INT", "MISSION_REQUEST", "MISSION_ACK", "COMMAND_
               "TERRAIN_REPORT"}
 MIN_CLEARANCE_M = 20  # refuse to launch if the route passes closer than this to the ground at cruise height
 # Storage box door servo. The backend sends its real settings in "hello"; these are the fallbacks.
-DEFAULT_BOX = {"servo": 8, "pwmOpen": 1900, "pwmClose": 1100, "moveS": 2}
+DEFAULT_BOX = {"servo": 8, "pwmOpen": 2000, "pwmClose": 1000, "moveS": 2}
 # The box may only open on the ground (loading) or while hovering over the drop point.
 BOX_OPEN_PHASES = ("awaiting_clearance", "lowering", "releasing", "retracting")
 

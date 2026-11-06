@@ -22,7 +22,7 @@ The backend connects to `DRONE_BRIDGE_URL` (default `ws://127.0.0.1:8765?drone=<
 
 ```jsonc
 // box: storage box servo settings from config.ts (output, OPEN / CLOSED PWM, seconds to move)
-{ "type": "hello", "droneId": "MDR-01", "box": { "servo": 8, "pwmOpen": 1900, "pwmClose": 1100, "moveS": 2 } }
+{ "type": "hello", "droneId": "MDR-01", "box": { "servo": 8, "pwmOpen": 2000, "pwmClose": 1450, "moveS": 2 } }
 { "type": "start_mission", "plan": {
     "missionId": 12, "orderId": 1042,
     "home":   { "lat": 28.645189, "lon": 77.381497 },

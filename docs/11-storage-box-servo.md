@@ -47,10 +47,10 @@ In `server/src/config.ts` → `box` (or environment variables):
 |---------|---------|---------|
 | Output number | 8 | `BOX_SERVO` |
 | OPEN signal | **2000 µs** (measured) | `BOX_PWM_OPEN` |
-| CLOSED signal | **1000 µs** (measured) | `BOX_PWM_CLOSE` |
+| CLOSED signal | **1450 µs** (measured) | `BOX_PWM_CLOSE` |
 | Time to open or close | 2 s | |
 
-1000 → 2000 µs turns the servo about 90°. Fit the horn so the door is shut at 1000.
+Set on the real box door in Mission Planner (Servo/Relay, row 8): the door is shut at 1450 and fully open at 2000. If the horn is ever refitted, fit it so the door is shut at 1450.
 
 ---
 

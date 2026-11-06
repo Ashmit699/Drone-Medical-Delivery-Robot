@@ -22,7 +22,7 @@ export const PLANS: Plan[] = [
   {
     id: 'personal',
     name: 'Personal',
-    priceMonthly: 99,
+    priceMonthly: 349,
     members: 1,
     deliveriesPerMonth: 4,
     coverPerDelivery: 1000,
@@ -31,7 +31,7 @@ export const PLANS: Plan[] = [
   {
     id: 'family',
     name: 'Family',
-    priceMonthly: 249,
+    priceMonthly: 799,
     members: 5,
     deliveriesPerMonth: 10,
     coverPerDelivery: 1500,
@@ -41,7 +41,7 @@ export const PLANS: Plan[] = [
   {
     id: 'care_plus',
     name: 'Care+',
-    priceMonthly: 449,
+    priceMonthly: 1499,
     members: 5,
     deliveriesPerMonth: null,
     coverPerDelivery: 3000,

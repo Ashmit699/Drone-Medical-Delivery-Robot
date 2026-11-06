@@ -101,7 +101,7 @@ export default function Home() {
               <span className="glow-text">at your door in minutes.</span>
             </h1>
             <p className="mt-5 max-w-lg text-lg text-slate-400">
-              When every minute counts, a Aerolift drone flies the medicine you need straight to you. Members never pay per order: it’s all covered by one small monthly plan.
+              When every minute counts, an Aerolift drone flies the medicine you need straight to you. Members never pay per order: it’s all covered by one small monthly plan.
             </p>
             <HeroSearch />
             <div className="mt-6 flex flex-wrap gap-3">
@@ -112,7 +112,7 @@ export default function Home() {
                 <Siren className="h-4 w-4" /> SOS kit
               </button>
               <Link to="/plans" className="btn-secondary px-6 py-3 text-base">
-                <ShieldCheck className="h-4 w-4 text-emerald-300" /> Plans from ₹99/mo
+                <ShieldCheck className="h-4 w-4 text-emerald-300" /> Plans from ₹349/mo
               </Link>
             </div>
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-400">

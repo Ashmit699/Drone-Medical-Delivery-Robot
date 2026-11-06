@@ -94,7 +94,7 @@ export function quote(input: QuoteInput, userId?: number) {
 
   // Members pay nothing per order: the plan covers the flight and the supplies.
   const plan = activeSubscription(userId);
-  if (userId && !plan) problems.push('Activate a Aerolift Care plan to send emergency deliveries for free');
+  if (userId && !plan) problems.push('Activate an Aerolift Care plan to send emergency deliveries for free');
   if (plan && plan.remaining === 0) problems.push(`You have used all ${plan.deliveriesPerMonth} free deliveries on your ${plan.planName} plan this month. Upgrade to Care+ for unlimited`);
   if (plan && itemsTotal > plan.coverPerDelivery) problems.push(`Your ${plan.planName} plan covers supplies up to ₹${plan.coverPerDelivery} per delivery. Remove some items or upgrade`);
   const etaS = distance != null ? estimateEtaS(distance) : null;

@@ -298,7 +298,7 @@ export default function Checkout() {
               </div>
             ) : (
               <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
-                You don’t have an active plan yet. A Aerolift Care plan from ₹99/month makes every emergency delivery free.
+                You don’t have an active plan yet. An Aerolift Care plan from ₹349/month makes every emergency delivery free.
                 <Link to="/plans?next=/checkout" className="btn-primary mt-3 w-fit">Choose a plan</Link>
               </div>
             )}

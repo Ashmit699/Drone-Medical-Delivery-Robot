@@ -187,9 +187,9 @@ With none set, the 3D view uses free satellite imagery on a flat globe. This was
 
 | Plan | Price | People | Free deliveries | Supplies covered per delivery |
 |------|-------|--------|-----------------|-------------------------------|
-| Personal | ₹99/month | 1 | 4 per month | ₹1,000 |
-| Family | ₹249/month | up to 5 | 10 per month | ₹1,500 |
-| Care+ | ₹449/month | up to 5 | unlimited | ₹3,000 |
+| Personal | ₹349/month | 1 | 4 per month | ₹1,000 |
+| Family | ₹799/month | up to 5 | 10 per month | ₹1,500 |
+| Care+ | ₹1,499/month | up to 5 | unlimited | ₹3,000 |
 
 - **No plan, used up, or over the limit:** the quote returns a "problem" and checkout shows a "Choose a plan" button.
 - **Plan payment** is simulated (UPI autopay, no real charge).

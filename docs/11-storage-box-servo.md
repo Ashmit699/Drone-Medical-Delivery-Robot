@@ -89,3 +89,36 @@ the door is **firmly latched** (CLOSED) and **fully open** (OPEN). Write both nu
 4. **Real drone, props off, over telemetry:** Live monitor → Open box / Close box ✅ (tested 6 Nov 2026: 90° both ways, app shows OPEN/CLOSED read back from output 8); then dispatch an
    order and step through it
 5. Real flight with an empty box, then with a light package
+
+---
+
+## Mirror mode: SITL flies, the real box opens and closes
+
+For demos indoors: **ArduPilot SITL** (the friend's Windows laptop) flies the whole delivery on the
+map, and the **real drone's box servo copies SITL's output 8** at the same moment, over the SiK radio.
+
+```
+App ─► server ─► bridge ─► SITL (Wi-Fi, tcp:IP:5762)       flies the mission, runs DO_SET_SERVO 8
+                     └───► real drone (SiK radio)           gets ONLY the box servo command: never armed,
+                                                            no mission, no mode change
+```
+
+The bridge watches SITL's `SERVO_OUTPUT_RAW` (output 8). When it changes between CLOSED and OPEN, it
+sends the same `DO_SET_SERVO 8` to the real drone, then reads the real output back and prints it.
+Manual **Open box / Close box** in the app goes to SITL first, so the real box follows that too.
+The bridge refuses to open the real box if the real drone is ever armed.
+
+**Setup**
+1. Real drone: props off, battery on, ground radio in the Mac.
+2. SITL: Mission Planner → SIMULATION, connected to SITL → Full Parameter List:
+   `SERVO8_FUNCTION = 0`, `SERVO8_MIN = 1000`, `SERVO8_MAX = 2000` → Write Params.
+3. Mac (repo root): `npm run seed && npm run dev`.
+4. Mac (`drone-bridge`):
+   `.venv/bin/python bridge.py --mavlink tcp:<SITL-IP>:5762 --mirror-box /dev/cu.usbserial-A45608UQ`
+5. App: Ops → Fleet → MDR-01 → **Radio bridge**. Order, dispatch, press **Area clear** at the drop.
+
+The bridge terminal shows each step, for example:
+`[mirror] SITL box OPEN -> real drone output 8 set` and `[mirror] real drone output 8 reads 2000 us = open`.
+
+Tested 6 Nov 2026 with the pretend FC (`mock_fc.py`) in place of SITL and the real drone on the radio:
+box closed at take-off, opened after Area clear, closed before the climb, order delivered.

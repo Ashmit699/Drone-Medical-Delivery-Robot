@@ -371,6 +371,7 @@ cd drone-bridge
 .venv/bin/python bridge.py --check --mavlink tcp:IP:5762   # print firmware, mode, GPS, position
 .venv/bin/python bridge.py --mavlink tcp:IP:5762           # run the bridge
 # other flags: --baud (SiK serial), --port (WS port), --drone MDR-01, --forward
+# --mirror-box /dev/cu.usbserial-XXXX: SITL flies, the real drone's box servo copies SITL's (docs/11)
 ```
 
 - `MODE_NAMES = mavutil.mode_mapping_acm` maps number → name; `COPTER_MODES` is the reverse.

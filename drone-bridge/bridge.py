@@ -15,6 +15,8 @@ Run:
     python bridge.py --mavlink /dev/tty.usbserial-XXXX --baud 57600       # real SiK radio
     python bridge.py --mavlink udp:127.0.0.1:14550                        # ArduPilot SITL
     python bridge.py ... --forward udp:192.168.1.20:14550                 # also feed Mission Planner
+    python bridge.py --mavlink tcp:IP:5762 --mirror-box /dev/cu.usbserial-XXXX
+        # SITL flies the mission; the real drone's box servo copies SITL's (props off, never armed)
 Then in the app: Ops -> Fleet -> MDR-01 -> adapter "Radio bridge".
 Storage box: servo on output 8 (SERVO8_FUNCTION = 0); see docs/11-storage-box-servo.md.
 """
@@ -58,7 +60,8 @@ def distance_m(lat1, lon1, lat2, lon2):
 class Vehicle:
     """Owns the MAVLink link. One reader thread; blocking helpers are called via asyncio.to_thread."""
 
-    def __init__(self, url, baud, forward=None):
+    def __init__(self, url, baud, forward=None, label="FC"):
+        self.label = label
         self.m = mavutil.mavlink_connection(url, baud=baud, source_system=255, source_component=mav.MAV_COMP_ID_MISSIONPLANNER)
         self.fwd = mavutil.mavlink_connection(forward, input=False) if forward else None
         self.inbox = queue.Queue()
@@ -105,7 +108,7 @@ class Vehicle:
             elif t == "SERVO_OUTPUT_RAW" and msg.port == 0:
                 s["servo_out"] = {n: getattr(msg, f"servo{n}_raw", 0) for n in range(1, 17)}
             elif t == "STATUSTEXT":
-                print("[FC]", msg.text)
+                print(f"[{self.label}]", msg.text)
             if t in INBOX_MSGS:
                 self.inbox.put(msg)
             self.on_message(msg)
@@ -363,6 +366,7 @@ class Bridge:
         self.flight = None
         self.loop = None
         self.box = dict(DEFAULT_BOX)
+        self.mirror = None  # optional real drone whose box servo copies this vehicle's (--mirror-box)
 
     def emit(self, obj):
         """Thread-safe: queue a message for every connected backend."""
@@ -461,6 +465,31 @@ class Bridge:
         box = f.box if flying else self.box
         self.v.set_servo(box["servo"], box["pwmOpen"] if open_it else box["pwmClose"])
 
+    async def mirror_box(self):
+        """Mirror mode: whenever the flown vehicle's (SITL's) box output changes between OPEN and
+        CLOSED, send the same DO_SET_SERVO to the real drone. Only the box servo is ever sent to it:
+        no mission, no mode change, no arming."""
+        sent, seen = None, None
+        while True:
+            box = self.flight.box if self.flight else self.box
+            want = self.v.box_state(box)
+            if want in ("open", "closed") and want != sent:
+                if want == "open" and self.mirror.state["armed"]:
+                    print("[mirror] real drone is ARMED: not opening its box")
+                else:
+                    try:
+                        await asyncio.to_thread(self.mirror.set_servo, box["servo"], box["pwmOpen" if want == "open" else "pwmClose"])
+                        sent = want
+                        print(f"[mirror] SITL box {want.upper()} -> real drone output {box['servo']} set")
+                    except Exception as err:
+                        print(f"[mirror] real drone did not accept the box command ({err}); retrying")
+                        await asyncio.sleep(1)
+            real = self.mirror.box_state(box)
+            if real != seen:
+                seen = real
+                print(f"[mirror] real drone output {box['servo']} reads {self.mirror.state['servo_out'].get(box['servo'], 0)} us = {real}")
+            await asyncio.sleep(0.25)
+
     async def loop_forever(self):
         last_hb = 0
         while True:
@@ -483,6 +512,9 @@ async def main():
     ap.add_argument("--port", type=int, default=8765, help="WebSocket port for the app backend")
     ap.add_argument("--drone", default="MDR-01")
     ap.add_argument("--forward", help="also send all MAVLink to this address, e.g. udp:192.168.1.20:14550 for Mission Planner")
+    ap.add_argument("--mirror-box", metavar="REAL_FC", help="also connect to the real drone here (e.g. its SiK radio) "
+                    "and copy the flown vehicle's box servo onto it. Only the box servo is sent: never arm it")
+    ap.add_argument("--mirror-baud", type=int, default=57600)
     ap.add_argument("--check", action="store_true", help="connect, print firmware/GPS/battery, and exit")
     args = ap.parse_args()
 
@@ -500,6 +532,12 @@ async def main():
     bridge = Bridge(v, args.drone)
     bridge.loop = asyncio.get_running_loop()
     print(f"Drone connected. Backend WebSocket on ws://0.0.0.0:{args.port}")
+    if args.mirror_box:
+        bridge.mirror = Vehicle(args.mirror_box, args.mirror_baud, label="REAL")
+        print(f"Waiting for the real drone on {args.mirror_box} (box mirror) ...")
+        bridge.mirror.connect()
+        print("Real drone connected: its box servo now follows the flown vehicle's. Keep its props off.")
+        mirror_task = asyncio.create_task(bridge.mirror_box())  # noqa: F841 (keep a reference)
     async with websockets.serve(bridge.handle, "0.0.0.0", args.port):
         await bridge.loop_forever()
 
